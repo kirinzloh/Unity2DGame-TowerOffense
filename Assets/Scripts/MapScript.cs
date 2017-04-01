@@ -29,6 +29,9 @@ public class MapScript : MonoBehaviour {
             case "BuildRoute":
                 BuildRouteScript.clickTile(this, tile);
                 break;
+			case "MainGame":
+				MainGameScript.clickTile (this,tile);
+				break;
         }
     }
 
