@@ -14,6 +14,7 @@ public class MapScript : MonoBehaviour {
     // Data/reference attributes
     public Tile tileScript;
     private List<Tile> path;
+	private List<Monster> monsters;
     public Tile[,] grid; // Public for editor to work, try not to access directly.
 
     public Tile getTile(int i, int j) {
@@ -35,6 +36,7 @@ public class MapScript : MonoBehaviour {
     void Awake () {
         DontDestroyOnLoad(gameObject);
         path = new List<Tile>();
+		monsters = new List<Monster>();
         /* // This is done by Map Editor instead.
         grid = new Tile[numRows, numCols];
         
