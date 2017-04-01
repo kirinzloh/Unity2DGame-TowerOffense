@@ -4,7 +4,7 @@ using UnityEngine;
 
 [ExecuteInEditMode]
 public class MapEditor : MonoBehaviour {
-
+    /*
     public MapScript mapScript;
     
     void Start () {
@@ -46,5 +46,5 @@ public class MapEditor : MonoBehaviour {
                 mapScript.grid[i, j] = tile;
             }
         }
-    }
+    }*/
 }

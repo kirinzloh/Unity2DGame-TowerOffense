@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Photon.PunBehaviour {
 
@@ -11,6 +12,7 @@ public class GameManager : Photon.PunBehaviour {
     // Client version number.
     string _gameVersion = "1";
     public PhotonLogLevel Loglevel = PhotonLogLevel.Informational;
+    public bool networked = true;
 
     public int LocalId;
     public int LocalIdIndex;
@@ -19,9 +21,12 @@ public class GameManager : Photon.PunBehaviour {
 
     private int sceneLatch;
 
+    public PlayerGameState getOwnGameState() {
+        return gameStates[LocalIdIndex];
+    }
+
     // Called on startup/construction
-    void Awake()
-    {
+    void Awake() {
         // For singleton
         if (instance == null) {
             DontDestroyOnLoad(gameObject);
@@ -34,19 +39,23 @@ public class GameManager : Photon.PunBehaviour {
         PhotonNetwork.autoJoinLobby = false;
         // Don't auto sync scenes. Ignore-->Makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
         PhotonNetwork.automaticallySyncScene = false;
+        
+        // Reduce sendrate.
+        PhotonNetwork.sendRate = 10; // Default 20
+        PhotonNetwork.sendRateOnSerialize = 5; // Default 10
 
         PhotonNetwork.logLevel = Loglevel;
     }
     
-    void Start()
-    {
-        Connect();
+    void Start() {
+        if (networked) {
+            Connect();
+        }
     }
 
-    #region networking
+    #region api
 
-    public void Connect()
-    {
+    public void Connect() {
         infoDisplay.text = "Connecting to photon...";
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected) {
@@ -58,25 +67,28 @@ public class GameManager : Photon.PunBehaviour {
         }
     }
 
-    public void buildComplete(MapScript map) {
-
+    public void Cancel() {
+        SceneManager.LoadScene(0);
     }
 
-    public override void OnConnectedToMaster()
-    {
+    public void buildReady() {
+        photonView.RPC("LoadWhenReady", PhotonTargets.All, 3);
+    }
+    #endregion
+
+    #region networking callbacks
+    public override void OnConnectedToMaster() {
         infoDisplay.text = "Connected, joining room...";
         Debug.Log("GameManager: OnConnectedToMaster() was called by PUN");
         PhotonNetwork.JoinRandomRoom();
     }
 
-    public override void OnPhotonRandomJoinFailed(object[] codeAndMsg)
-    {
+    public override void OnPhotonRandomJoinFailed(object[] codeAndMsg) {
         Debug.Log("GameManager:OnPhotonRandomJoinFailed() was called by PUN. No random room available, so create one.");
         PhotonNetwork.CreateRoom(null, new RoomOptions() { MaxPlayers = 2 }, null);
     }
 
-    public override void OnJoinedRoom()
-    {
+    public override void OnJoinedRoom() {
         infoDisplay.text = "Joined room, waiting for another player to join...";
         Debug.Log("GameManager: OnJoinedRoom() called by PUN. Now this client is in a room.");
         LocalId = PhotonNetwork.player.ID;
@@ -86,9 +98,14 @@ public class GameManager : Photon.PunBehaviour {
         }
     }
 
-    public override void OnDisconnectedFromPhoton()
-    {
+    public override void OnDisconnectedFromPhoton() {
         Debug.LogWarning("GameManager: OnDisconnectedFromPhoton() was called by PUN");
+        SceneManager.LoadScene(0);
+    }
+
+    public override void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer) {
+        Debug.LogWarning("GameManager: OnPhotonPlayerDisconnected() was called by PUN");
+        SceneManager.LoadScene(0);
     }
 
     #endregion
@@ -96,8 +113,7 @@ public class GameManager : Photon.PunBehaviour {
     #region rpcs
 
     [PunRPC]
-    public void StartGame()
-    {
+    public void StartGame() {
         infoDisplay.text = "Starting game...";
         Debug.Log("GameManager: Starting Game...");
         PhotonPlayer[] players = PhotonNetwork.playerList;
@@ -127,7 +143,6 @@ public class GameManager : Photon.PunBehaviour {
     #endregion
 
     // Update is called once per frame
-    void Update()
-    {
+    void Update(){
     }
 }

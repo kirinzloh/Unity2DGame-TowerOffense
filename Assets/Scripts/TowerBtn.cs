@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class TowerBtn : MonoBehaviour {
 	public GameObject towerPrefab;
+    public PlayMap playMap;
 	public Sprite sprite;
 	public int price;
 
 	public void OnMouseDown() {
-		if (MainGameScript.Instance.tileSel && MainGameScript.Instance.selectedTile!=null && MainGameScript.Instance.gold>=price) {
-			MainGameScript.Instance.gold -= price;
-			MainGameScript.Instance.PlaceTower (MainGameScript.Instance.selectedTile, towerPrefab);
-		}
+        playMap.buildTower(towerPrefab, price);
 	}
 	// Use this for initialization
 	void Start () {
