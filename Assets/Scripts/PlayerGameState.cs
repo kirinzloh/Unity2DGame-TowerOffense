@@ -6,6 +6,7 @@ using UnityEngine;
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     public int playerId;
+    public MapScript map;
 
     private bool changed = true;
 
@@ -37,7 +38,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             }
         } else {
             this.playerId = (int)stream.ReceiveNext();
-            Debug.Log("1"); // Experiment
+            /*Debug.Log("1"); // Experiment
             byte[] experi = (byte[])stream.ReceiveNext();
             Debug.Log("2");
             Debug.Log(experi); // Experiment
@@ -45,7 +46,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             Debug.Log("3");
             for (int i = 0; i < 100; ++i) {
                 Debug.Log(experi[i]);
-            }
+            }*/
         }
     }
 }

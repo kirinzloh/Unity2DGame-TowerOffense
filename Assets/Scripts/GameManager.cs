@@ -16,7 +16,9 @@ public class GameManager : Photon.PunBehaviour {
     public int LocalIdIndex;
     public int[] playerIds;
     public PlayerGameState[] gameStates;
-    
+
+    private int sceneLatch;
+
     // Called on startup/construction
     void Awake()
     {
@@ -56,6 +58,10 @@ public class GameManager : Photon.PunBehaviour {
         }
     }
 
+    public void buildComplete(MapScript map) {
+
+    }
+
     public override void OnConnectedToMaster()
     {
         infoDisplay.text = "Connected, joining room...";
@@ -74,8 +80,8 @@ public class GameManager : Photon.PunBehaviour {
         infoDisplay.text = "Joined room, waiting for another player to join...";
         Debug.Log("GameManager: OnJoinedRoom() called by PUN. Now this client is in a room.");
         LocalId = PhotonNetwork.player.ID;
+        sceneLatch = 2;
         if (PhotonNetwork.room.PlayerCount == 2) {
-            print(photonView);
             photonView.RPC("StartGame", PhotonTargets.All);
         }
     }
@@ -104,7 +110,18 @@ public class GameManager : Photon.PunBehaviour {
         GameObject gs = PhotonNetwork.Instantiate("GameState", new Vector3(0f, 0f, 0f), Quaternion.identity, 0);
         gameStates[LocalIdIndex] = gs.GetComponent<PlayerGameState>();
         gameStates[LocalIdIndex].playerId = LocalId;
-        PhotonNetwork.LoadLevel(2);
+        photonView.RPC("LoadWhenReady", PhotonTargets.All, 2);
+    }
+
+    [PunRPC]
+    public void LoadWhenReady(int scene) {
+        lock (this) {
+            sceneLatch -= 1;
+            if (sceneLatch <= 0) {
+                PhotonNetwork.LoadLevel(scene);
+                sceneLatch = 2;
+            }
+        }
     }
 
     #endregion

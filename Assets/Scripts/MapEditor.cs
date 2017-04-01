@@ -11,6 +11,7 @@ public class MapEditor : MonoBehaviour {
     }
 
     // DISABLE SCRIPT IF YOU DON'T WANT TO AUTO-UPDATE THE MAP.
+    // VERY IMPORTANT: DISABLE THIS SCRIPT IN PLAY MODE AS WELL OR IT WILL RESET THE MAP.
     // Update is called whenever anything on the gameObject changes.
     // May make the editor slow if you edit other stuff on map because it rebuilds the map repeatedly.
     // It's possible to make it rebuild only when a relevant property changes, but that takes too much time.

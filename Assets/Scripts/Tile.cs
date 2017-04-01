@@ -4,18 +4,38 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour {
 
-    public enum State { EMPTY, TOWER, PATH, OBSTACLE}
+    public enum State { EMPTY, TOWER, PATH, OBSTACLE }
+    public enum Direction { UNSET, UP, DOWN, LEFT, RIGHT }
 
-    public Coord coord;
     public MapScript mapScript;
-    public State state;
+    private SpriteRenderer spriteR;
+
+    #region public api
+    public Coord coord;
+    public State state; // Default EMPTY
+    public Direction startDirection; // Default UNSET
+    public Direction endDirection; // Default UNSET
+    
+    
+    public void setSprite(Sprite sprite) {
+        spriteR.sprite = sprite;
+    }
+
+    public void highlight() {
+        spriteR.color = Color.green;
+    }
+
+    public void unhighlight() {
+        spriteR.color = Color.white;
+    }
+    #endregion
 
     void OnMouseDown() {
         mapScript.onClick(this);
     }
 
     void Awake() {
-        state = State.EMPTY;
+        spriteR = GetComponent<SpriteRenderer>();
     }
 
     // Use this for initialization
