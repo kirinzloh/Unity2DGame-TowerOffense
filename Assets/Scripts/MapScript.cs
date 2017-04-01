@@ -50,6 +50,9 @@ public class MapScript : MonoBehaviour {
                         break;
                 }
                 break;
+			case "MainGame":
+				MainGameScript.clickTile (this,tile);
+				break;
         }
     }
 
