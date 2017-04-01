@@ -40,6 +40,8 @@ public class MapEditor : MonoBehaviour {
                 tile.transform.parent = row.transform;
                 tile.transform.localPosition = new Vector3(leftEdge + (mapScript.spacing * j), 0, 0);
                 tile.transform.localScale = new Vector3(mapScript.scaling, mapScript.scaling, 0);
+                tile.coord = new Coord(i, j);
+                tile.mapScript = mapScript;
                 mapScript.grid[i, j] = tile;
             }
         }
