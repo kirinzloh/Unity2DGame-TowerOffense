@@ -48,15 +48,14 @@ public class PlayMap : MonoBehaviour {
             map = ownGameState.GetComponent<GameStateTester>().map;
         }*/
 
+        numRows = map.numRows;
+        numCols = map.numCols;
         path = new List<PlayTile>();
         grid = new PlayTile[numRows, numCols];
         selectedTile = null;
 
-        numRows = map.numRows;
-        numCols = map.numCols;
-
         // Generate tiles
-        float topEdge = (float)(spacing * (numRows / 2.0));
+        float topEdge = (float)(spacing * (numRows / 2.0 - 0.5));
         float leftEdge = (float)-(spacing * (numCols / 2.0 - 0.5));
         for (int i = 0; i < numRows; ++i) {
             GameObject row = new GameObject("row");
