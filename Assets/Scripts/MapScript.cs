@@ -16,7 +16,6 @@ public class MapScript : MonoBehaviour {
     // Data/reference attributes
     private List<Tile> path;
 	private List<Monster> monsters;
-    public Tile[,] grid; // Public for editor to work, try not to access directly.
 
     public Tile getTile(int i, int j) {
         return grid[i, j];
