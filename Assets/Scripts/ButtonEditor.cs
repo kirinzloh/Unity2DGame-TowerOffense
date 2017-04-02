@@ -28,9 +28,9 @@ public class ButtonEditor : MonoBehaviour {
 		{
 			MonsterButton monster_button = Instantiate(buttonScript.monsterButtonScript);
 			monster_button.transform.parent = gameObject.transform;
-			monster_button.tag = j;
-			monster_button.transform.localPosition = new Vector3((buttonScript.spacing * j), 0, 0);
-			monster_button.transform.localScale = new Vector3(buttonScript.scaling, buttonScript.scaling, 0);
+			monster_button.tag = "Monster" + j.ToString();
+			monster_button.transform.localPosition = new Vector3((buttonScript.spacing * j) + buttonScript.x, buttonScript.y, 0);
+			monster_button.transform.localScale = new Vector3(buttonScript.scaling, buttonScript.scaling,0);
 			monster_button.buttonScript = buttonScript;
 		}
 	}

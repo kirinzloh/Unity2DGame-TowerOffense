@@ -4,7 +4,11 @@ using UnityEngine;
 
 public class MonsterButton : MonoBehaviour {
 
-	ButtonScript buttonScript;
+	public ButtonScript buttonScript;
+
+	void onMouseDown() {
+		buttonScript.onClick(this);
+	}
 
 	// Use this for initialization
 	void Start () {
