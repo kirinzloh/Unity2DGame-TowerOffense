@@ -6,38 +6,42 @@ using UnityEngine;
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     public int playerId;
+    public int hp;
+    public int gold;
+    public MapData map;
+    
+    public bool sendMapData = false;
 
-    private bool changed = true;
-
-    void Awake()
-    {
+    void Awake() {
         DontDestroyOnLoad(gameObject);
-        gameObject.transform.parent = GameManager.instance.transform;
+        hp = 10;
     }
 
     // Use this for initialization
     void Start () {
-        
+        gameObject.transform.parent = GameManager.instance.transform;
+        if (PhotonNetwork.connected && photonView.isMine) {
+            photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
+        }
     }
-    
 
     // Update is called once per frame
     void Update () {
-        
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
+    [PunRPC]
+    public void setPlayerId(int id) {
+        this.playerId = id;
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {
-            if (changed)
-            {
-                stream.SendNext(playerId);
-                stream.SendNext(new byte[100]); // Experiment
-                changed = false;
-            }
+            stream.SendNext(hp);
+            stream.SendNext(gold);
         } else {
-            this.playerId = (int)stream.ReceiveNext();
-            Debug.Log("1"); // Experiment
+            this.hp = (int)stream.ReceiveNext();
+            this.gold = (int)stream.ReceiveNext();
+            /*Debug.Log("1"); // Experiment
             byte[] experi = (byte[])stream.ReceiveNext();
             Debug.Log("2");
             Debug.Log(experi); // Experiment
@@ -45,7 +49,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             Debug.Log("3");
             for (int i = 0; i < 100; ++i) {
                 Debug.Log(experi[i]);
-            }
+            }*/
         }
     }
 }
