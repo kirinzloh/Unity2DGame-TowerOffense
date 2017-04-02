@@ -56,7 +56,7 @@ public class PlayMap : MonoBehaviour {
         numCols = map.numCols;
 
         // Generate tiles
-        float topEdge = (float)(spacing * (numRows / 2.0 - 0.5));
+        float topEdge = (float)(spacing * (numRows / 2.0));
         float leftEdge = (float)-(spacing * (numCols / 2.0 - 0.5));
         for (int i = 0; i < numRows; ++i) {
             GameObject row = new GameObject("row");
