@@ -14,10 +14,16 @@ public class PlayMap : MonoBehaviour {
     // cached resources
     public PlayTile tileScript;
 
+
+
     // Data/reference attributes for playing.
     private List<PlayTile> path;
     private PlayTile[,] grid;
     public PlayTile selectedTile;
+
+    // Defined as such so that it can be accessed in TowerBtn
+    public TowerBtn ClickedBtn { get; private set; }
+
 
     public void onTileClick(PlayTile tile) {
         if (tile.state == TileData.State.EMPTY && selectedTile==null) {
@@ -29,16 +35,24 @@ public class PlayMap : MonoBehaviour {
         }
     }
 
-    public void buildTower(GameObject towerPrefab, int price) { // Should probably subclass a tower class
-        if (price > ownGameState.gold) { return; }
-        ownGameState.gold -= price;
-        GameObject tower = Instantiate(towerPrefab, selectedTile.transform.position, Quaternion.identity);
-        tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row; // Probably better to set the tower prefab to a higher layer itself.
+    // Called when tower button is clicked
+    public void buildTower() { // Should probably subclass a tower class
+        if (ClickedBtn.price > ownGameState.gold) { return; }
+        ownGameState.gold -= ClickedBtn.price;
+        GameObject tower = (GameObject) Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
+        tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row; 
         tower.transform.SetParent(selectedTile.transform);
         selectedTile.state = TileData.State.TOWER;
         selectedTile.unhighlight();
         selectedTile = null;
     }
+
+    // To determine which tower button was selected
+    public void SelectTower(TowerBtn towerBtn)
+    {
+        this.ClickedBtn = towerBtn;
+    }
+
 
     // Use this for initialization
     void Start () {
