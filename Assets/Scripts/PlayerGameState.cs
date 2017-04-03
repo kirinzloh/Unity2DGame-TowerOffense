@@ -15,6 +15,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     void Awake() {
         DontDestroyOnLoad(gameObject);
         hp = 10;
+        gold = 1000;
     }
 
     // Use this for initialization

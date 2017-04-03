@@ -1,105 +1,35 @@
-﻿//using System.Collections;
-//using System.Collections.Generic;
-//using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-//public class Tower : MonoBehaviour {
-//    // This is the projectile's type
-//    public string projectileType;
+public class Tower : MonoBehaviour {
+    // This is to show the range of the tower
+    private SpriteRenderer rangeSpriteRenderer;
 
-//    // This is the target of the tower's attack
-//    private Monster target;
+    private string towerType;
 
-//    // This is the tower's target queue
-//    private Queue<Monster> monsters = new Queue<Monster>();
-
-//    // This indicates whether the tower can attack (shoot projectile)
-//    private bool canAttack = true;
-
-//    // This is the timer for the tower's attack
-//    private float attackTimer;
-
-//    // This is the tower's attack speed (Number of secs per attack)
-//    public float attackSpeed;
-
-//    // This is the tower's projectile speed
-//    public float projectileSpeed;
-
-//    // This is the tower's damage
-//    public int towerDamage;
-
-//    // Use this for initialization
-//    void Start () {
-        
-//	}
+    
+    // Use this for initialization
+    void Start () {
+        rangeSpriteRenderer = transform.GetChild(0).GetComponent<SpriteRenderer>();
+        this.name = towerType;
+	}
 	
-//	// Update is called once per frame
-//	void Update () {
-//        Attack();
-//	}
+	// Update is called once per frame
+	void Update () {
+		
+	}
 
-//    private void Attack()
-//    {
-//        if (!canAttack)
-//        {
-//            attackTimer += Time.deltaTime;
-//            if (attackTimer >= attackSpeed)
-//            {
-//                canAttack = true;
-//                attackTimer = 0;
-//            }
-//        }
-//        if (target == null && monsters.Count > 0)
-//        {
-//            target = monsters.Dequeue();
-//        }
-//        if (target != null && target.isActive)
-//        {
-//            if (canAttack == true)
-//            {
-//                Shoot();
-//                canAttack = false;
-//            }
-//        }
-//    }
+    void OnMouseDown()
+    {
+        TriggerRangeDisplay();
+        PlayMap.Instance.DisplayUpgradePanel(towerType);
+    }
 
-//    private void Shoot()
-//    {
-//        Projectile projectile = GameplayManager.Instance.Pool.GetObject(projectileType).GetComponent<Projectile>();
-//        projectile.transform.position = transform.position;
-//        projectile.Initialize(this);
-//    }
+    public void TriggerRangeDisplay()
+    {
+        rangeSpriteRenderer.enabled = !rangeSpriteRenderer.enabled;
+    }
 
-//    public void OnTriggerEnter2D(Collider2D other)
-//    {
-//        if (other.tag == "Monster")
-//        {
-//            monsters.Enqueue(other.GetComponent<Monster>());
-//        }
-//    }
 
-//    public void OnTriggerExit2D(Collider2D other)
-//    {
-//        if (other.tag == "Monster") 
-//        {
-//            target = null;
-//        }
-//    }
-
-//    public float GetProjectileSpeed
-//    {
-//        get { return projectileSpeed; }
-//    }
-
-//    public Monster GetTarget
-//    {
-//        get { return target; }
-//    }
-
-//    public int TowerDamage
-//    {
-//        get
-//        {
-//            return towerDamage;
-//        }
-//    }
-//}
+}

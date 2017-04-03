@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class PlayMap : MonoBehaviour {
+public class PlayMap : Singleton<PlayMap> {
 
     PlayerGameState ownGameState;
 
@@ -20,11 +21,16 @@ public class PlayMap : MonoBehaviour {
     private List<PlayTile> path;
     private PlayTile[,] grid;
     public PlayTile selectedTile;
+    public Text health;
+    public Text gold;
+    public Text upgradeCost;
+    public Text sellPrice;
+    public GameObject upgradePanel;
 
-    // Defined as such so that it can be accessed in TowerBtn
+    public ProjectilePool projectilePool { get; set; }
     public TowerBtn ClickedBtn { get; private set; }
 
-
+    // When empty tiles are clicked, they are highlighted so that towers can be built on them
     public void onTileClick(PlayTile tile) {
         if (tile.state == TileData.State.EMPTY && selectedTile==null) {
             selectedTile = tile;
@@ -36,15 +42,87 @@ public class PlayMap : MonoBehaviour {
     }
 
     // Called when tower button is clicked
-    public void buildTower() { // Should probably subclass a tower class
-        if (ClickedBtn.price > ownGameState.gold) { return; }
-        ownGameState.gold -= ClickedBtn.price;
-        GameObject tower = (GameObject) Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
-        tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row; 
-        tower.transform.SetParent(selectedTile.transform);
-        selectedTile.state = TileData.State.TOWER;
-        selectedTile.unhighlight();
-        selectedTile = null;
+    public void buildTower() { 
+        if (selectedTile != null) //To prevent deduction of gold even when no tiles are highlighted
+        {
+            if (ClickedBtn.price > ownGameState.gold) { return; }
+            ownGameState.gold -= ClickedBtn.price;
+            GameObject tower = (GameObject)Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
+            tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
+            tower.transform.SetParent(selectedTile.transform);
+            selectedTile.state = TileData.State.TOWER;
+            selectedTile.unhighlight();
+            selectedTile = null;
+        }
+    }
+
+    // To toggle display of upgrade panel when a tower is clicked
+    public void DisplayUpgradePanel(string towerType)
+    {
+        if (upgradePanel.activeSelf)
+        {
+            upgradePanel.SetActive(false);
+        }
+        else
+        {   // There must be a better way to do this, create new data structure for towers?
+            //switch (towerType)
+            //{
+            //    case "ArrowTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "AttackAuraTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "BallistaTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "CannonTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "FrozeTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "GoldTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "InfernoTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "MortarTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "PoisonTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "SpeedAuraTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "StoneTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "TeslaTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+            //    case "WizardTower":
+            //        upgradeCost.text = "$2";
+            //        sellPrice.text = "$0";
+            //        break;
+
+            //}
+            upgradePanel.SetActive(true);
+        }
     }
 
     // To determine which tower button was selected
@@ -53,7 +131,17 @@ public class PlayMap : MonoBehaviour {
         this.ClickedBtn = towerBtn;
     }
 
+    // To initalize the projectile pool
+    private void Awake()
+    {
+        projectilePool = GetComponent<ProjectilePool>();
+    }
 
+    // Method used for releasing game objects such as projectiles
+    public void ReleaseObject(GameObject gameObject)
+    {
+        gameObject.SetActive(false);
+    }
     // Use this for initialization
     void Start () {
         ownGameState = GameManager.instance.getOwnGameState();
@@ -110,6 +198,7 @@ public class PlayMap : MonoBehaviour {
     
     // Update is called once per frame
     void Update () {
-        
+        health.text = ownGameState.hp.ToString();
+        gold.text = "$" + ownGameState.gold.ToString();
     }
 }
