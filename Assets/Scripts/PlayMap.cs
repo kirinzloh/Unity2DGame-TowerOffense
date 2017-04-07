@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayMap : Singleton<PlayMap> {
+public class PlayMap : MonoBehaviour {
 
     PlayerGameState ownGameState;
 
@@ -42,18 +42,16 @@ public class PlayMap : Singleton<PlayMap> {
     }
 
     // Called when tower button is clicked
-    public void buildTower() { 
-        if (selectedTile != null) //To prevent deduction of gold even when no tiles are highlighted
-        {
-            if (ClickedBtn.price > ownGameState.gold) { return; }
-            ownGameState.gold -= ClickedBtn.price;
-            GameObject tower = (GameObject)Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
-            tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
-            tower.transform.SetParent(selectedTile.transform);
-            selectedTile.state = TileData.State.TOWER;
-            selectedTile.unhighlight();
-            selectedTile = null;
-        }
+    public void buildTower() {
+        if (selectedTile == null) { return; } //To prevent deduction of gold even when no tiles are highlighted
+        if (ClickedBtn.price > ownGameState.gold) { return; }
+        ownGameState.gold -= ClickedBtn.price;
+        GameObject tower = (GameObject)Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
+        tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
+        tower.transform.SetParent(selectedTile.transform);
+        selectedTile.state = TileData.State.TOWER;
+        selectedTile.unhighlight();
+        selectedTile = null;
     }
 
     // To toggle display of upgrade panel when a tower is clicked
