@@ -72,7 +72,13 @@ public class GameManager : Photon.PunBehaviour {
     }
 
     public void buildReady() {
-        photonView.RPC("LoadWhenReady", PhotonTargets.All, 3);
+        // For testing.
+        if (PhotonNetwork.connected) {
+            photonView.RPC("SendMap", PhotonTargets.Others, (object)getOwnGameState().map.serializeNew(), LocalId);
+        } else {
+            Debug.Log("Testing offline. Loading scene directly");
+            SceneManager.LoadScene(3);
+        }
     }
     #endregion
 
@@ -126,7 +132,7 @@ public class GameManager : Photon.PunBehaviour {
         GameObject gs = PhotonNetwork.Instantiate("GameState", new Vector3(0f, 0f, 0f), Quaternion.identity, 0);
         gameStates[LocalIdIndex] = gs.GetComponent<PlayerGameState>();
         gameStates[LocalIdIndex].playerId = LocalId;
-        photonView.RPC("LoadWhenReady", PhotonTargets.All, 2);
+        photonView.RPC("LoadWhenReady", PhotonTargets.AllViaServer, 2);
     }
 
     [PunRPC]
@@ -140,6 +146,20 @@ public class GameManager : Photon.PunBehaviour {
         }
     }
 
+    [PunRPC]
+    public void SendMap(byte[] serialisedMap, int playerid) {
+        int index = System.Array.IndexOf(playerIds, playerid);
+        Debug.Log(playerid);// DEBUG
+        Debug.Log(index);// DEBUG
+        Debug.Log(gameStates[index]);// DEBUG
+        Debug.Log(gameStates[index].map);// DEBUG
+        gameStates[index].map = MapData.deserializeNew(serialisedMap);
+        Debug.Log(gameStates[index].map);// DEBUG
+        foreach (TileData x in gameStates[index].map.getPath()) {
+            Debug.Log(x.coord.row + " " + x.coord.col + "|" + x.startDirection + "|" + x.endDirection);
+        }
+        photonView.RPC("LoadWhenReady", PhotonTargets.AllViaServer, 3);
+    }
     #endregion
 
     // Update is called once per frame

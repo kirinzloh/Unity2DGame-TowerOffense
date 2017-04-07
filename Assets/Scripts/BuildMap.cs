@@ -158,12 +158,7 @@ public class BuildMap : MonoBehaviour {
         map.setGrid(grid);
         GameManager gm = GameManager.instance;
         gm.getOwnGameState().map = map;
-        if (PhotonNetwork.connected) { // For testing.
-            GameManager.instance.buildReady();
-        } else {
-            Debug.Log("Testing offline. Loading scene directly");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(3);
-        }
+        gm.buildReady();
     }
 
     public void reset() {

@@ -33,6 +33,9 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     [PunRPC]
     public void setPlayerId(int id) {
         this.playerId = id;
+        GameManager gm = GameManager.instance;
+        int index = System.Array.IndexOf(gm.playerIds, id);
+        gm.gameStates[index] = this;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
