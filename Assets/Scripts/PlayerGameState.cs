@@ -24,6 +24,13 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
         }
+        // DEBUG MODE. DELETE WHEN DONE!
+        if (!PhotonNetwork.connected || photonView==null) {
+            byte[] mapbyte = System.IO.File.ReadAllBytes("map"+playerId+".dat");
+            map = MapData.deserializeNew(mapbyte);
+            Debug.Log("PlayerGameState "+playerId+" loaded map from " + System.IO.Path.GetFullPath("map" + playerId + ".dat"));
+        }
+        // DEBUG END
     }
 
     // Update is called once per frame

@@ -160,9 +160,6 @@ public class PlayMap : MonoBehaviour {
     void Start () {
         ownGameState = GameManager.instance.getOwnGameState();
         MapData map = ownGameState.map;
-        /*if (!PhotonNetwork.connected) { // DEBUG MODE
-            map = ownGameState.GetComponent<GameStateTester>().map;
-        }*/
 
         numRows = map.numRows;
         numCols = map.numCols;

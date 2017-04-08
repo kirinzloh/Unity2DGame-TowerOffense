@@ -16,6 +16,7 @@ public class GameManager : Photon.PunBehaviour {
 
     public int LocalId;
     public int LocalIdIndex;
+    public int OpponentIdIndex;
     public int[] playerIds;
     public PlayerGameState[] gameStates;
 
@@ -23,6 +24,10 @@ public class GameManager : Photon.PunBehaviour {
 
     public PlayerGameState getOwnGameState() {
         return gameStates[LocalIdIndex];
+    }
+
+    public PlayerGameState getOpponentGameState() {
+        return gameStates[OpponentIdIndex];
     }
 
     // Called on startup/construction
@@ -129,6 +134,12 @@ public class GameManager : Photon.PunBehaviour {
         }
         System.Array.Sort(playerIds);
         LocalIdIndex = System.Array.IndexOf(playerIds, LocalId);
+        // Hardcode Opponent ID reference. Need more general design for multi opponent (which is not in the plan, so this is ok).
+        if (LocalIdIndex == 0) {
+            OpponentIdIndex = 1;
+        } else {
+            OpponentIdIndex = 0;
+        }
         GameObject gs = PhotonNetwork.Instantiate("GameState", new Vector3(0f, 0f, 0f), Quaternion.identity, 0);
         gameStates[LocalIdIndex] = gs.GetComponent<PlayerGameState>();
         gameStates[LocalIdIndex].playerId = LocalId;
@@ -149,15 +160,7 @@ public class GameManager : Photon.PunBehaviour {
     [PunRPC]
     public void SendMap(byte[] serialisedMap, int playerid) {
         int index = System.Array.IndexOf(playerIds, playerid);
-        Debug.Log(playerid);// DEBUG
-        Debug.Log(index);// DEBUG
-        Debug.Log(gameStates[index]);// DEBUG
-        Debug.Log(gameStates[index].map);// DEBUG
         gameStates[index].map = MapData.deserializeNew(serialisedMap);
-        Debug.Log(gameStates[index].map);// DEBUG
-        foreach (TileData x in gameStates[index].map.getPath()) {
-            Debug.Log(x.coord.row + " " + x.coord.col + "|" + x.startDirection + "|" + x.endDirection);
-        }
         photonView.RPC("LoadWhenReady", PhotonTargets.AllViaServer, 3);
     }
     #endregion
