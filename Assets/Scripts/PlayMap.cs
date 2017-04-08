@@ -61,8 +61,8 @@ public class PlayMap : Singleton<PlayMap> {
 	public void spawnMonster() {
 		if (ClickedMtrBtn.price > ownGameState.gold) { return; }
 		ownGameState.gold -= ClickedMtrBtn.price;
-//		GameObject monster = (GameObject)Instantiate (ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
-//		monster.GetComponent<SpriteRenderer> ().sortingOrder = path[0].coord.row;
+		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
+		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
 		//monster.transform.SetParent ();
 	}
 
