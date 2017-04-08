@@ -29,6 +29,7 @@ public class PlayMap : Singleton<PlayMap> {
 
     public ProjectilePool projectilePool { get; set; }
     public TowerBtn ClickedBtn { get; private set; }
+	public MonsterBtn ClickedMtrBtn { get; private set;}
 
     // When empty tiles are clicked, they are highlighted so that towers can be built on them
     public void onTileClick(PlayTile tile) {
@@ -55,6 +56,15 @@ public class PlayMap : Singleton<PlayMap> {
             selectedTile = null;
         }
     }
+
+	// Called when monster button is clicked
+	public void spawnMonster() {
+		if (ClickedMtrBtn.price > ownGameState.gold) { return; }
+		ownGameState.gold -= ClickedMtrBtn.price;
+//		GameObject monster = (GameObject)Instantiate (ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
+//		monster.GetComponent<SpriteRenderer> ().sortingOrder = path[0].coord.row;
+		//monster.transform.SetParent ();
+	}
 
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(string towerType)
@@ -130,6 +140,12 @@ public class PlayMap : Singleton<PlayMap> {
     {
         this.ClickedBtn = towerBtn;
     }
+
+	// To determine which monster button was selected
+	public void SelectMonster(MonsterBtn monsterBtn)
+	{
+		this.ClickedMtrBtn = monsterBtn;
+	}
 
     // To initalize the projectile pool
     private void Awake()
