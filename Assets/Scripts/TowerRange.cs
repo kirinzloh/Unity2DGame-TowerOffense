@@ -67,7 +67,7 @@ public class TowerRange : MonoBehaviour
 
     private void Shoot()
     {
-        Projectile projectile = PlayMap.Instance.projectilePool.GetProjectile(projectileType).GetComponent<Projectile>();
+        Projectile projectile = Object.FindObjectOfType<PlayMap>().projectilePool.GetProjectile(projectileType).GetComponent<Projectile>();
         projectile.transform.position = transform.position;
         projectile.Initialize(this);
     }
