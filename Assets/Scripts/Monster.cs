@@ -6,15 +6,18 @@ public class Monster : MonoBehaviour {
 
 	[SerializeField]
 	private float speed;
+	public int damage;
 	public PlayMap playMap;
 
 	private string monsterType;
 	private Stack<PlayTile> path;
+	private PlayTile startPath;
 	public Coord gridPosition;
 	private Vector3 destination;
 
 	// Use this for initialization
 	void Start () {
+//		Debug.Log ("HELLOOOOO");
 		this.name = monsterType;
 		SetPath(playMap.path);
 	}
@@ -35,18 +38,28 @@ public class Monster : MonoBehaviour {
 
 		if (transform.position == destination) {
 			if (path != null && path.Count > 0) {
-				gridPosition = path.Peek().tileData.coord; 
-				destination = path.Pop().transform.position;
+				gridPosition = path.Peek ().tileData.coord; 
+				destination = path.Pop ().transform.position;
+				Debug.Log (destination);
+			}
+			else {
+				playMap.ownGameState.hp -= this.damage;
+				transform.position = startPath.transform.position;
+				gridPosition = startPath.tileData.coord;
+				Destroy (this.gameObject);
 			}
 		}
 	}
 
 	void SetPath(List<PlayTile> pathList)
 	{
-		Debug.Log(pathList);
+//		Debug.Log(pathList);
 		if (pathList != null) {
-			this.path = new Stack<PlayTile> (pathList);
+			List<PlayTile> reversedList = new List<PlayTile> (pathList);
+			reversedList.Reverse ();
+			this.path = new Stack<PlayTile> (reversedList);
 			this.gridPosition = path.Peek().tileData.coord;
+			this.startPath = path.Peek ();
 			this.destination = path.Pop().transform.position;
 		}
 

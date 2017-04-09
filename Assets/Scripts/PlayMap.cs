@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class PlayMap : MonoBehaviour {
 
-    PlayerGameState ownGameState;
+    public PlayerGameState ownGameState;
 
     public int numRows;
     public int numCols;
@@ -59,7 +59,10 @@ public class PlayMap : MonoBehaviour {
 	public void spawnMonster() {
 		if (ClickedMtrBtn.price > ownGameState.gold) { return; }
 		ownGameState.gold -= ClickedMtrBtn.price;
+		Debug.Log (path[0].transform.position);
 		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
+		Monster monster_mtr = monster.GetComponent<Monster> ();
+		monster_mtr.playMap = this;
 		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
 	}
 
