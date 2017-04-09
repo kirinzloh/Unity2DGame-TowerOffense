@@ -16,6 +16,7 @@ public class GameManager : Photon.PunBehaviour {
 
     public int LocalId;
     public int LocalIdIndex;
+    public int OpponentIdIndex;
     public int[] playerIds;
     public PlayerGameState[] gameStates;
 
@@ -23,6 +24,10 @@ public class GameManager : Photon.PunBehaviour {
 
     public PlayerGameState getOwnGameState() {
         return gameStates[LocalIdIndex];
+    }
+
+    public PlayerGameState getOpponentGameState() {
+        return gameStates[OpponentIdIndex];
     }
 
     // Called on startup/construction
@@ -72,7 +77,13 @@ public class GameManager : Photon.PunBehaviour {
     }
 
     public void buildReady() {
-        photonView.RPC("LoadWhenReady", PhotonTargets.All, 3);
+        // For testing.
+        if (PhotonNetwork.connected) {
+            photonView.RPC("SendMap", PhotonTargets.Others, (object)getOwnGameState().map.serializeNew(), LocalId);
+        } else {
+            Debug.Log("Testing offline. Loading scene directly");
+            SceneManager.LoadScene(3);
+        }
     }
     #endregion
 
@@ -123,10 +134,16 @@ public class GameManager : Photon.PunBehaviour {
         }
         System.Array.Sort(playerIds);
         LocalIdIndex = System.Array.IndexOf(playerIds, LocalId);
+        // Hardcode Opponent ID reference. Need more general design for multi opponent (which is not in the plan, so this is ok).
+        if (LocalIdIndex == 0) {
+            OpponentIdIndex = 1;
+        } else {
+            OpponentIdIndex = 0;
+        }
         GameObject gs = PhotonNetwork.Instantiate("GameState", new Vector3(0f, 0f, 0f), Quaternion.identity, 0);
         gameStates[LocalIdIndex] = gs.GetComponent<PlayerGameState>();
         gameStates[LocalIdIndex].playerId = LocalId;
-        photonView.RPC("LoadWhenReady", PhotonTargets.All, 2);
+        photonView.RPC("LoadWhenReady", PhotonTargets.AllViaServer, 2);
     }
 
     [PunRPC]
@@ -140,6 +157,12 @@ public class GameManager : Photon.PunBehaviour {
         }
     }
 
+    [PunRPC]
+    public void SendMap(byte[] serialisedMap, int playerid) {
+        int index = System.Array.IndexOf(playerIds, playerid);
+        gameStates[index].map = MapData.deserializeNew(serialisedMap);
+        photonView.RPC("LoadWhenReady", PhotonTargets.AllViaServer, 3);
+    }
     #endregion
 
     // Update is called once per frame

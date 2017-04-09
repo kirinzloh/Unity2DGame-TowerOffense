@@ -26,7 +26,7 @@ public class Monster : MonoBehaviour {
 
 	void OnMouseDown()
 	{
-		PlayMap.Instance.DisplayUpgradePanel(monsterType);
+        Object.FindObjectOfType<PlayMap>().DisplayUpgradePanel(monsterType);
 	}
 
 	private void Move()

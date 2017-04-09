@@ -156,14 +156,16 @@ public class BuildMap : MonoBehaviour {
         MapData map = new MapData(numRows, numCols);
         map.setPath(path);
         map.setGrid(grid);
+        // DEBUG MODE. DELETE WHEN DONE!
+        System.IO.FileStream x = System.IO.File.Create("map.dat");
+        byte[] mapbyte = map.serializeNew();
+        x.Write(mapbyte, 0, mapbyte.Length);
+        x.Close();
+        Debug.Log("Map data written to: " + System.IO.Path.GetFullPath(x.Name));
+        // DEBUG END
         GameManager gm = GameManager.instance;
         gm.getOwnGameState().map = map;
-        if (PhotonNetwork.connected) { // For testing.
-            GameManager.instance.buildReady();
-        } else {
-            Debug.Log("Testing offline. Loading scene directly");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(3);
-        }
+        gm.buildReady();
     }
 
     public void reset() {
