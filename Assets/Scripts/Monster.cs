@@ -29,7 +29,7 @@ public class Monster : MonoBehaviour {
 
 	void OnMouseDown()
 	{
-        Object.FindObjectOfType<PlayMap>().DisplayUpgradePanel(monsterType);
+        //Object.FindObjectOfType<PlayMap>().DisplayUpgradePanel(monsterType);
 	}
 
 	private void Move()

@@ -6,7 +6,7 @@ public class PlayTile : MonoBehaviour {
 
     public TileData tileData = new TileData(); // This will be a Direct reference to TileData in PlayerGameState.
     public PlayMap mapScript;
-    public GameObject tower; // Should probably subclass a tower class
+    public Tower tower;
     private SpriteRenderer spriteR;
 
     #region public api
@@ -31,12 +31,25 @@ public class PlayTile : MonoBehaviour {
         spriteR.sprite = sprite;
     }
 
+    public void setTower(Tower tower) {
+        this.tower = tower;
+        tower.transform.SetParent(transform);
+        state = TileData.State.TOWER;
+        tileData.towerType = tower.towerId;
+    }
+
     public void highlight() {
         spriteR.color = Color.green; // new Color32 (96, 255, 90, 255); for nicer green if you want.
+        if (tower != null) {
+            tower.ShowRange();
+        }
     }
 
     public void unhighlight() {
         spriteR.color = Color.white;
+        if (tower != null) {
+            tower.HideRange();
+        }
     }
     #endregion
 
