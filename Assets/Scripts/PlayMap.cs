@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayMap : Singleton<PlayMap> {
+public class PlayMap : MonoBehaviour {
 
-    PlayerGameState ownGameState;
+    public PlayerGameState ownGameState;
 
     public int numRows;
     public int numCols;
@@ -18,7 +18,7 @@ public class PlayMap : Singleton<PlayMap> {
 
 
     // Data/reference attributes for playing.
-    private List<PlayTile> path;
+    public List<PlayTile> path;
     private PlayTile[,] grid;
     public PlayTile selectedTile;
     public Text health;
@@ -29,6 +29,7 @@ public class PlayMap : Singleton<PlayMap> {
 
     public ProjectilePool projectilePool { get; set; }
     public TowerBtn ClickedBtn { get; private set; }
+	public MonsterBtn ClickedMtrBtn { get; private set;}
 
     // When empty tiles are clicked, they are highlighted so that towers can be built on them
     public void onTileClick(PlayTile tile) {
@@ -42,19 +43,28 @@ public class PlayMap : Singleton<PlayMap> {
     }
 
     // Called when tower button is clicked
-    public void buildTower() { 
-        if (selectedTile != null) //To prevent deduction of gold even when no tiles are highlighted
-        {
-            if (ClickedBtn.price > ownGameState.gold) { return; }
-            ownGameState.gold -= ClickedBtn.price;
-            GameObject tower = (GameObject)Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
-            tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
-            tower.transform.SetParent(selectedTile.transform);
-            selectedTile.state = TileData.State.TOWER;
-            selectedTile.unhighlight();
-            selectedTile = null;
-        }
+    public void buildTower() {
+        if (selectedTile == null) { return; } //To prevent deduction of gold even when no tiles are highlighted
+        if (ClickedBtn.price > ownGameState.gold) { return; }
+        ownGameState.gold -= ClickedBtn.price;
+        GameObject tower = (GameObject)Instantiate(ClickedBtn.towerPrefab, selectedTile.transform.position, Quaternion.identity);
+        tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
+        tower.transform.SetParent(selectedTile.transform);
+        selectedTile.state = TileData.State.TOWER;
+        selectedTile.unhighlight();
+        selectedTile = null;
     }
+
+	// Called when monster button is clicked
+	public void spawnMonster() {
+		if (ClickedMtrBtn.price > ownGameState.gold) { return; }
+		ownGameState.gold -= ClickedMtrBtn.price;
+		Debug.Log (path[0].transform.position);
+		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
+		Monster monster_mtr = monster.GetComponent<Monster> ();
+		monster_mtr.playMap = this;
+		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
+	}
 
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(string towerType)
@@ -131,6 +141,12 @@ public class PlayMap : Singleton<PlayMap> {
         this.ClickedBtn = towerBtn;
     }
 
+	// To determine which monster button was selected
+	public void SelectMonster(MonsterBtn monsterBtn)
+	{
+		this.ClickedMtrBtn = monsterBtn;
+	}
+
     // To initalize the projectile pool
     private void Awake()
     {
@@ -146,9 +162,6 @@ public class PlayMap : Singleton<PlayMap> {
     void Start () {
         ownGameState = GameManager.instance.getOwnGameState();
         MapData map = ownGameState.map;
-        /*if (!PhotonNetwork.connected) { // DEBUG MODE
-            map = ownGameState.GetComponent<GameStateTester>().map;
-        }*/
 
         numRows = map.numRows;
         numCols = map.numCols;

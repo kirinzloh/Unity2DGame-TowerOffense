@@ -23,7 +23,7 @@ public class Tower : MonoBehaviour {
     void OnMouseDown()
     {
         TriggerRangeDisplay();
-        PlayMap.Instance.DisplayUpgradePanel(towerType);
+        Object.FindObjectOfType<PlayMap>().DisplayUpgradePanel(towerType);
     }
 
     public void TriggerRangeDisplay()
