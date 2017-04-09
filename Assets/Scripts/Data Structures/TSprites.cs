@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 
 public static class TSprites {
-    public static Sprite emptyTile = Resources.Load<Sprite>("Tiles/unoccupied");
-    public static Sprite startTile = Resources.Load<Sprite>("Tiles/start-tile");
-    public static Sprite horiTile = Resources.Load<Sprite>("Tiles/horizontal");
-    public static Sprite vertTile = Resources.Load<Sprite>("Tiles/vertical");
-    public static Sprite ULTile = Resources.Load<Sprite>("Tiles/up-left");
-    public static Sprite URTile = Resources.Load<Sprite>("Tiles/up-right");
-    public static Sprite DLTile = Resources.Load<Sprite>("Tiles/down-left");
-    public static Sprite DRTile = Resources.Load<Sprite>("Tiles/down-right");
-    public static Sprite endTile = Resources.Load<Sprite>("Tiles/end-tile");
+    public static readonly Sprite emptyTile = Resources.Load<Sprite>("Tiles/unoccupied");
+    public static readonly Sprite startTile = Resources.Load<Sprite>("Tiles/start-tile");
+    public static readonly Sprite horiTile = Resources.Load<Sprite>("Tiles/horizontal");
+    public static readonly Sprite vertTile = Resources.Load<Sprite>("Tiles/vertical");
+    public static readonly Sprite ULTile = Resources.Load<Sprite>("Tiles/up-left");
+    public static readonly Sprite URTile = Resources.Load<Sprite>("Tiles/up-right");
+    public static readonly Sprite DLTile = Resources.Load<Sprite>("Tiles/down-left");
+    public static readonly Sprite DRTile = Resources.Load<Sprite>("Tiles/down-right");
+    public static readonly Sprite endTile = Resources.Load<Sprite>("Tiles/end-tile");
 
     public static Sprite decideSprite(TileData.Direction start, TileData.Direction end) { // ^&#$@ hardcoded
         Sprite sprite = null;
