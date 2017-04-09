@@ -18,7 +18,7 @@ public class PlayMap : Singleton<PlayMap> {
 
 
     // Data/reference attributes for playing.
-    private List<PlayTile> path;
+    public List<PlayTile> path;
     private PlayTile[,] grid;
     public PlayTile selectedTile;
     public Text health;
@@ -63,7 +63,6 @@ public class PlayMap : Singleton<PlayMap> {
 		ownGameState.gold -= ClickedMtrBtn.price;
 		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
 		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
-		//monster.transform.SetParent ();
 	}
 
     // To toggle display of upgrade panel when a tower is clicked
