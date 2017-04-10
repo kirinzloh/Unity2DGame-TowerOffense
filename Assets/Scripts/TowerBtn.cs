@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// DEPRECATED
+
 public class TowerBtn : MonoBehaviour {
 	public GameObject towerPrefab;
 	public int price;
