@@ -47,22 +47,30 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         gm.gameStates[index] = this;
     }
 
+    [PunRPC]
+    public void setSendMapData(bool sendmap) {
+        if (photonView.isMine) {
+            sendMapData = sendmap;
+        }
+    }
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {
             stream.SendNext(hp);
             stream.SendNext(gold);
+            stream.SendNext(sendMapData);
+            if (sendMapData) {
+                stream.SendNext(map.serializePlay());
+            }
         } else {
+            // Note: In NetworkingPeer.cs : NetworkingPeer.OnSerializeWrite()
+            // first 3 values are always viewID, false, null. Ignore them if using ToArray or Count.
             this.hp = (int)stream.ReceiveNext();
             this.gold = (int)stream.ReceiveNext();
-            /*Debug.Log("1"); // Experiment
-            byte[] experi = (byte[])stream.ReceiveNext();
-            Debug.Log("2");
-            Debug.Log(experi); // Experiment
-            Debug.Log(experi.Length); // Experiment
-            Debug.Log("3");
-            for (int i = 0; i < 100; ++i) {
-                Debug.Log(experi[i]);
-            }*/
+            this.sendMapData = (bool)stream.ReceiveNext();
+            if (sendMapData) {
+                map.deserializePlay((byte[])stream.ReceiveNext());
+            }
         }
     }
 }

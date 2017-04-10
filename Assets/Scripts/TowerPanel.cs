@@ -14,7 +14,7 @@ public class TowerPanel : MonoBehaviour {
         foreach (Tower towerPrefab in TowerR.getBaseTowers()) {
             GameObject towerbtn = Instantiate(TowerButton);
             towerbtn.name = towerPrefab.name + " button";
-            towerbtn.transform.parent = grid;
+            towerbtn.transform.SetParent(grid, false);
             towerbtn.transform.localScale = new Vector3(1, 1, 1);
             towerbtn.GetComponent<Image>().sprite = towerPrefab.GetComponent<SpriteRenderer>().sprite;
             towerbtn.GetComponent<Button>().onClick.AddListener(delegate { playMap.onTowerBtnClick(towerPrefab); });

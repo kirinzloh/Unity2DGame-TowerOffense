@@ -6,7 +6,7 @@ public class ViewTile : MonoBehaviour {
 
     public TileData tileData = new TileData(); // This will be a Direct reference to TileData in PlayerGameState.
     public ViewMap mapScript;
-    public GameObject tower; // Should probably subclass a tower class
+    public Tower tower;
     private SpriteRenderer spriteR;
 
     #region public api
@@ -25,6 +25,13 @@ public class ViewTile : MonoBehaviour {
     public TileData.Direction endDirection {
         set { tileData.endDirection = value; }
         get { return tileData.endDirection; }
+    }
+
+    public void setTower(Tower tower) {
+        this.tower = tower;
+        tower.transform.SetParent(transform);
+        state = TileData.State.TOWER;
+        tileData.towerType = tower.towerId;
     }
 
     public void setSprite(Sprite sprite) {

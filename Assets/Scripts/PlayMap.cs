@@ -34,13 +34,15 @@ public class PlayMap : MonoBehaviour {
     // When empty tiles are clicked, they are highlighted so that activity can be done.
     public void onTileClick(PlayTile tile) {
         if (selectedTile==null) {
-            selectedTile = tile;
-            tile.highlight();
             switch (tile.state) {
                 case TileData.State.TOWER:
                     DisplayUpgradePanel(selectedTile.tower);
+                    selectedTile = tile;
+                    tile.highlight();
                     break;
                 case TileData.State.EMPTY:
+                    selectedTile = tile;
+                    tile.highlight();
                     break;
                 default:
                     break;
