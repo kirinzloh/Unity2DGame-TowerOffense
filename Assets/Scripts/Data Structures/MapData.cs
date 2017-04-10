@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using ExitGames.Client.Photon;
 
-
 public class MapData
 {
 
@@ -71,7 +70,7 @@ public class MapData
         size += 4 + (8 * path.Count); // 2*4 bytes (coordinates) * path length. + 4 bytes path length (int). For path.
         byte[] mapBytes = new byte[size];
         int index = 0;
-
+        // Serialize rows and cols.
         Protocol.Serialize(numRows, mapBytes, ref index);
         Protocol.Serialize(numCols, mapBytes, ref index);
         // Serialise grid
@@ -82,7 +81,7 @@ public class MapData
                 getTileData(i, j).serializeTo(mapBytes, ref index);
             }
         }
-
+        // Serialize Path
         Protocol.Serialize(path.Count, mapBytes, ref index);
         for (int i = 0; i < path.Count; i++)
         {
@@ -96,9 +95,11 @@ public class MapData
         int index = 0;
         int numRows;
         int numCols;
+        // Deserialize rows and cols.
         Protocol.Deserialize(out numRows, mapBytes, ref index);
         Protocol.Deserialize(out numCols, mapBytes, ref index);
         MapData map = new MapData(numRows, numCols);
+        // Deserialise grid
         for (int i = 0; i < numRows; i++)
         {
             for (int j = 0; j < numCols; j++)
@@ -106,6 +107,7 @@ public class MapData
                 map.getTileData(i, j).deserializeFrom(mapBytes, ref index);
             }
         }
+        // Deserialize Path
         int pathLength;
         Protocol.Deserialize(out pathLength, mapBytes, ref index);
         List<TileData> path = map.getPath();
@@ -115,6 +117,41 @@ public class MapData
             path.Add(map.getTileData(c.row, c.col));
         }
         return map;
+    }
+
+    public byte[] serializePlay()
+    {
+        int size = numRows * numCols * TileData.serialize_size; // For grid
+        byte[] mapBytes = new byte[size];
+        int index = 0;
+        // Serialise grid
+        for (int i = 0; i < numRows; i++)
+        {
+            for (int j = 0; j < numCols; j++)
+            {
+                getTileData(i, j).serializeTo(mapBytes, ref index);
+            }
+        }
+        string x = "";
+        for (int i = 0; i < size; ++i) { x += mapBytes[i]; } // DEBUG
+        UnityEngine.Debug.Log(x);
+        return mapBytes;
+    }
+
+    public void deserializePlay(byte[] mapBytes)
+    {
+        int index = 0;
+        // Deserialise grid
+        for (int i = 0; i < numRows; i++)
+        {
+            for (int j = 0; j < numCols; j++)
+            {
+                this.getTileData(i, j).deserializeFrom(mapBytes, ref index);
+            }
+        }
+        string x = "";
+        for (int i = 0; i < mapBytes.Length; ++i) { x += mapBytes[i]; } // DEBUG
+        UnityEngine.Debug.Log(x);
     }
     #endregion
 }

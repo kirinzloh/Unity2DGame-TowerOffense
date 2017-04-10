@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class Monster : MonoBehaviour {
 
-	[SerializeField]
-	private float speed;
-	public int damage;
-	public PlayMap playMap;
+    public PlayMap playMap;
 
-	private string monsterType;
+    // Monster data
+    [SerializeField]
+	private float speed;
+    private string monsterType;
+    public int damage;
+    public int hp;
+    
+
+    // Pathfinding data
 	private Stack<PlayTile> path;
 	private PlayTile startPath;
 	public Coord gridPosition;
@@ -19,12 +24,17 @@ public class Monster : MonoBehaviour {
 	void Start () {
 //		Debug.Log ("HELLOOOOO");
 		this.name = monsterType;
+        this.hp = 10;
 		SetPath(playMap.path);
 	}
 
 	// Update is called once per frame
 	void Update () {
 		Move();
+        if (hp <= 0)
+        {
+            Destroy(this.gameObject); 
+        }
 	}
 
 	void OnMouseDown()
@@ -40,7 +50,7 @@ public class Monster : MonoBehaviour {
 			if (path != null && path.Count > 0) {
 				gridPosition = path.Peek ().tileData.coord; 
 				destination = path.Pop ().transform.position;
-				Debug.Log (destination);
+				//Debug.Log (destination);
 			}
 			else {
 				playMap.ownGameState.hp -= this.damage;
@@ -64,4 +74,11 @@ public class Monster : MonoBehaviour {
 		}
 
 	}
+
+    public void TakeDamage(int damage)
+    {
+        hp -= damage;
+    }
+
+
 }

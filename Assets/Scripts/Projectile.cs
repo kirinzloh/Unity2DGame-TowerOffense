@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    //private Monster target;
-    private TowerRange towerType;
+    private Monster target;
+    private Tower towerType;
 
     // Use this for initialization
     void Start()
@@ -19,33 +19,38 @@ public class Projectile : MonoBehaviour
         AttackTarget();
     }
 
-    public void Initialize(TowerRange towerType)
+    public void Initialize(Tower towerType)
     {
-        //this.target = towerType.GetTarget;
+        this.target = towerType.GetTarget;
         this.towerType = towerType;
     }
 
     private void AttackTarget()
     {
-        //if (target != null && target.isActive)
-        //{
-        //    transform.position = Vector3.MoveTowards(transform.position, target.transform.position, Time.deltaTime * towerType.projectileSpeed);
-        //}
-        //else if (!target.isActive)
-        //{
-        //    PlayMap.Instance.ProjectilePool.ReleaseObject(gameObject);
-        //}
+        if (target != null)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, Time.deltaTime * towerType.projectileSpeed);
+        }
+        else
+        {
+            Release();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Monster")
         {
-            //if (target.gameObject == other.gameObject)
-            //{
-            //    target.TakeDamage(towerType.TowerDamage);
-            //}
-            //PlayMap.Instance.ProjectilePool.ReleaseObject(gameObject);
+            if (target.gameObject == other.gameObject)
+            {
+                target.TakeDamage(towerType.Damage);
+            }
+            Release();
         }
+    }
+
+    private void Release()
+    {
+        Object.FindObjectOfType<PlayMap>().projectilePool.ReleaseProjectile(gameObject);
     }
 }

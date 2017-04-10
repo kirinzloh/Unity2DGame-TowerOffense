@@ -6,12 +6,12 @@ using UnityEngine;
 public static class TowerR {
 
     // Mapping of tower IDs to the tower script in the prefab.
-    // Tower ids start from 2nd digit. 1st digit is the tower level (starting from 0).
+    // Tower ids start from 1st digit. 2nd digit is the tower level (starting from 0).
     private static Dictionary<int, Tower> IdMap;
 
     static TowerR() {
         IdMap = new Dictionary<int, Tower>();
-        IdMap.Add(10, Resources.Load<Tower>("Towers/ArrowTower"));
+        IdMap.Add(10, Resources.Load<Tower>("Towers/BasicTower"));
         IdMap.Add(20, Resources.Load<Tower>("Towers/FrozeTower"));
         IdMap.Add(30, Resources.Load<Tower>("Towers/PoisonTower"));
         foreach (KeyValuePair<int, Tower> pair in IdMap) {

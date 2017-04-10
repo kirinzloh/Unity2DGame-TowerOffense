@@ -28,7 +28,6 @@ public class PlayMap : MonoBehaviour {
     public GameObject upgradePanel;
 
     public ProjectilePool projectilePool { get; set; }
-    public TowerBtn ClickedBtn { get; private set; }
 	public MonsterBtn ClickedMtrBtn { get; private set;}
 
     // When empty tiles are clicked, they are highlighted so that activity can be done.
@@ -36,7 +35,7 @@ public class PlayMap : MonoBehaviour {
         if (selectedTile==null) {
             switch (tile.state) {
                 case TileData.State.TOWER:
-                    DisplayUpgradePanel(selectedTile.tower);
+                    DisplayUpgradePanel(tile.tower);     
                     selectedTile = tile;
                     tile.highlight();
                     break;
@@ -53,7 +52,7 @@ public class PlayMap : MonoBehaviour {
             HideUpgradePanel();
         }
     }
-
+    
     // Called when tower button is clicked
     public void onTowerBtnClick(Tower towerPrefab) {
         if (selectedTile == null || selectedTile.state == TileData.State.TOWER) {
@@ -79,7 +78,7 @@ public class PlayMap : MonoBehaviour {
 	public void spawnMonster() {
 		if (ClickedMtrBtn.price > ownGameState.gold) { return; }
 		ownGameState.gold -= ClickedMtrBtn.price;
-		Debug.Log (path[0].transform.position);
+		//Debug.Log (path[0].transform.position);
 		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
 		Monster monster_mtr = monster.GetComponent<Monster> ();
 		monster_mtr.playMap = this;
@@ -101,13 +100,6 @@ public class PlayMap : MonoBehaviour {
         upgradePanel.SetActive(false);
     }
 
-
-    // To determine which tower button was selected
-    public void SelectTower(TowerBtn towerBtn)
-    {
-        this.ClickedBtn = towerBtn;
-    }
-
 	// To determine which monster button was selected
 	public void SelectMonster(MonsterBtn monsterBtn)
 	{
@@ -119,14 +111,6 @@ public class PlayMap : MonoBehaviour {
     {
         projectilePool = GetComponent<ProjectilePool>();
     }
-
-    // Method used for releasing game objects such as projectiles
-    public void ReleaseObject(GameObject gameObject)
-    {
-        gameObject.SetActive(false);
-    }
-
-
 
     // Use this for initialization
     void Start () {
