@@ -85,6 +85,14 @@ public class GameManager : Photon.PunBehaviour {
             SceneManager.LoadScene(3);
         }
     }
+
+    public void toggleOpponentSendMapData(bool sendData) {
+        if (PhotonNetwork.connected) {
+            getOpponentGameState().photonView.RPC("setSendMapData", PhotonTargets.Others, sendData);
+        } else {
+            getOpponentGameState().sendMapData = sendData;
+        }
+    }
     #endregion
 
     #region networking callbacks
