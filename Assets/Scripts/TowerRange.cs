@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿/*using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+//DEPRECATED
 
 public class TowerRange : MonoBehaviour
 {
@@ -105,4 +107,4 @@ public class TowerRange : MonoBehaviour
             return towerDamage;
         }
     }
-}
+}*/
