@@ -27,6 +27,7 @@ public class ViewMap : MonoBehaviour {
     // Use this for initialization
     void Start () {
         GameState = GameManager.instance.getOpponentGameState();
+        GameState.viewMapReference = this;
         initMap();
     }
 
