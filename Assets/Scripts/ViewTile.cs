@@ -7,7 +7,7 @@ public class ViewTile : MonoBehaviour {
     public TileData tileData = new TileData(); // This will be a Direct reference to TileData in PlayerGameState.
     public ViewMap mapScript;
     public Tower tower;
-    private SpriteRenderer spriteR;
+    protected SpriteRenderer spriteR;
 
     #region public api
     public Coord coord {
