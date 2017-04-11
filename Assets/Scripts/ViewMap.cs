@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ViewMap : MonoBehaviour {
 
-    public PlayerGameState viewGameState;
+    public PlayerGameState GameState;
     public int numRows;
     public int numCols;
     // scaling and spacing should generally be the same number. Unity inspector overrides, remember to set in unity inspector.
@@ -15,15 +15,24 @@ public class ViewMap : MonoBehaviour {
     public ViewTile tileScript;
 
     // Data/reference attributes for playing.
-    private List<ViewTile> path;
-    private ViewTile[,] grid;
-    public Text opponenthealth;
+    protected List<ViewTile> path;
+    protected ViewTile[,] grid;
 
+    public Text health;
+
+    public List<ViewTile> getPath() {
+        return path;
+    }
 
     // Use this for initialization
     void Start () {
-        viewGameState = GameManager.instance.getOpponentGameState();
-        MapData map = viewGameState.map;
+        GameState = GameManager.instance.getOpponentGameState();
+        GameState.viewMapReference = this;
+        initMap();
+    }
+
+    protected void initMap() {
+        MapData map = GameState.map;
 
         numRows = map.numRows;
         numCols = map.numCols;
@@ -69,11 +78,12 @@ public class ViewMap : MonoBehaviour {
         grid[td.coord.row, td.coord.col].setSprite(TSprites.endTile);
         path.Add(grid[td.coord.row, td.coord.col]);
     }
-	
-	// Update is called once per frame
-	void Update () {
-        if (!viewGameState.sendMapData) { return; }
-
+    
+    // Update is called once per frame
+    void Update () {
+        health.text = GameState.hp.ToString();
+        if (!GameState.sendMapData) { return; }
+        Debug.Log("after check"); // DEBUG
         for (int i = 0; i < numRows; ++i) {
             for (int j = 0; j < numCols; ++j) {
                 int towerid = grid[i, j].tower == null ? 0 : grid[i, j].tower.towerId;
@@ -83,5 +93,6 @@ public class ViewMap : MonoBehaviour {
                 };
             }
         }
+        Debug.Log("updated"); // DEBUG
     }
 }

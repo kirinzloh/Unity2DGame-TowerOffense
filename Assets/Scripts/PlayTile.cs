@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayTile : MonoBehaviour {
+public class PlayTile : ViewTile {
 
-    public TileData tileData = new TileData(); // This will be a Direct reference to TileData in PlayerGameState.
-    public PlayMap mapScript;
-    public Tower tower;
-    private SpriteRenderer spriteR;
+    //public TileData tileData = new TileData(); // This will be a Direct reference to TileData in PlayerGameState.
 
     #region public api
+<<<<<<< HEAD
     public Coord coord {
         set { tileData.coord = value; }
         get { return tileData.coord; }
@@ -46,6 +44,8 @@ public class PlayTile : MonoBehaviour {
         tileData.towerType = 0;
     }*/
 
+=======
+>>>>>>> refs/remotes/origin/master
     public void highlight() {
         spriteR.color = Color.green; // new Color32 (96, 255, 90, 255); for nicer green if you want.
         if (tower != null) {
@@ -62,7 +62,7 @@ public class PlayTile : MonoBehaviour {
     #endregion
 
     void OnMouseDown() {
-        mapScript.onTileClick(this);
+        ((PlayMap) mapScript).onTileClick(this);
     }
 
     void Awake() {

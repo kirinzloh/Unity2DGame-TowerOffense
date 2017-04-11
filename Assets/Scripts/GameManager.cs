@@ -93,6 +93,14 @@ public class GameManager : Photon.PunBehaviour {
             getOpponentGameState().sendMapData = sendData;
         }
     }
+
+    public void sendMonster(Monster monsterPrefab) {
+        if (PhotonNetwork.connected) {
+            getOpponentGameState().photonView.RPC("spawnMonster", PhotonTargets.Others, monsterPrefab.monsterId);
+        } else {
+            getOpponentGameState().spawnMonster(monsterPrefab.monsterId);
+        }
+    }
     #endregion
 
     #region networking callbacks

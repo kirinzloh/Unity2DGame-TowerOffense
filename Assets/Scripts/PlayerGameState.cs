@@ -9,6 +9,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public int hp;
     public int gold;
     public MapData map;
+    public ViewMap viewMapReference;
     
     public bool sendMapData = false;
 
@@ -39,6 +40,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     void Update () {
     }
 
+    #region rpcs
     [PunRPC]
     public void setPlayerId(int id) {
         this.playerId = id;
@@ -49,10 +51,19 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     [PunRPC]
     public void setSendMapData(bool sendmap) {
+        Debug.Log("in setsendmap data: " + sendmap); // DEBUG
         if (photonView.isMine) {
+            Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
             sendMapData = sendmap;
         }
     }
+
+    [PunRPC]
+    public void spawnMonster(int monsterId) {
+        //Should maintain a pool of monsters in the game state.
+        //viewMapReference.spawnMonster();
+    }
+    #endregion
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {

@@ -3,25 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayMap : MonoBehaviour {
-
-    public PlayerGameState ownGameState;
-
-    public int numRows;
-    public int numCols;
-    // scaling and spacing should generally be the same number. Unity inspector overrides, remember to set in unity inspector.
-    public float scaling = 1; // Scales size of tiles only. (default tile sprite should be 1 game unit width)
-    public float spacing = 1; // Spacing in game units.
-    // cached resources
-    public PlayTile tileScript;
-
-
+public class PlayMap : ViewMap {
 
     // Data/reference attributes for playing.
-    public List<PlayTile> path;
-    private PlayTile[,] grid;
     public PlayTile selectedTile;
-    public Text health;
+
+    // UI stuff
     public Text gold;
     public Text upgradeCost;
     public Text sellPrice;
@@ -32,16 +19,20 @@ public class PlayMap : MonoBehaviour {
     public Button upgradeTower;
     public Button sellTower;
 
+    // To Deprecate
     public ProjectilePool projectilePool { get; set; }
-	public MonsterBtn ClickedMtrBtn { get; private set;}
 
     // When empty tiles are clicked, they are highlighted so that activity can be done.
     public void onTileClick(PlayTile tile) {
         if (selectedTile==null) {
             switch (tile.state) {
                 case TileData.State.TOWER:
+<<<<<<< HEAD
                     DisplayTowerInfo(tile.tower);
                     DisplayUpgradePanel(tile.tower);     
+=======
+                    DisplayUpgradePanel(tile.tower);
+>>>>>>> refs/remotes/origin/master
                     selectedTile = tile;
                     tile.highlight();
                     break;
@@ -71,7 +62,8 @@ public class PlayMap : MonoBehaviour {
             }
         } else {
             // Try to build tower
-            if (towerPrefab.price > ownGameState.gold) { return; }
+            if (towerPrefab.price > GameState.gold) { return; }
+			GameState.gold -= towerPrefab.price;
             Tower tower = Instantiate(towerPrefab, selectedTile.transform.position, Quaternion.identity);
             selectedTile.setTower(tower);
             selectedTile.unhighlight();
@@ -79,16 +71,26 @@ public class PlayMap : MonoBehaviour {
         }
     }
 
-	// Called when monster button is clicked
+    // Called when monster button is clicked (on opponent side)
+    /*
+<<<<<<< PREVIOUS
 	public void spawnMonster() {
-		if (ClickedMtrBtn.price > ownGameState.gold) { return; }
-		ownGameState.gold -= ClickedMtrBtn.price;
+		if (ClickedMtrBtn.price > GameState.gold) { return; }
+		GameState.gold -= ClickedMtrBtn.price;
 		//Debug.Log (path[0].transform.position);
 		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
 		Monster monster_mtr = monster.GetComponent<Monster> ();
 		monster_mtr.playMap = this;
 		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
+    }
+=======
+	public void onMonsterBtnClick(Monster monsterPrefab) {
+		if (monsterPrefab.price > ownGameState.gold) { return; }
+		Monster monster = Instantiate (monsterPrefab, path [0].transform.position, Quaternion.identity);
+		monster.playMap = this;
 	}
+>>>>>>> master (NEW)
+    */
 
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(Tower tower)
@@ -114,6 +116,7 @@ public class PlayMap : MonoBehaviour {
         upgradePanel.SetActive(false);
     }
 
+<<<<<<< HEAD
     // To toggle display of tower info when a towerBtn/tower is clicked
     public void DisplayTowerInfo(Tower tower)
     {
@@ -154,6 +157,8 @@ public class PlayMap : MonoBehaviour {
 		this.ClickedMtrBtn = monsterBtn;
 	}
 
+=======
+>>>>>>> refs/remotes/origin/master
     // To initalize the projectile pool
     private void Awake()
     {
@@ -162,58 +167,13 @@ public class PlayMap : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        ownGameState = GameManager.instance.getOwnGameState();
-        MapData map = ownGameState.map;
-
-        numRows = map.numRows;
-        numCols = map.numCols;
-        path = new List<PlayTile>();
-        grid = new PlayTile[numRows, numCols];
-        selectedTile = null;
-
-        // Generate tiles
-        float topEdge = (float)(spacing * (numRows / 2.0 - 0.5));
-        float leftEdge = (float)-(spacing * (numCols / 2.0 - 0.5));
-        for (int i = 0; i < numRows; ++i) {
-            GameObject row = new GameObject("row");
-            row.transform.parent = gameObject.transform;
-            row.transform.localPosition = new Vector3(0, topEdge - (spacing * i), 0);
-            for (int j = 0; j < numCols; ++j) {
-                PlayTile tile = Instantiate(tileScript);
-                tile.transform.parent = row.transform;
-                tile.transform.localPosition = new Vector3(leftEdge + (spacing * j), 0, 0);
-                tile.transform.localScale = new Vector3(scaling, scaling, 0);
-                tile.tileData.coord = new Coord(i, j);
-                tile.mapScript = this;
-                grid[i, j] = tile;
-            }
-        }
-        // Set tile data
-        for (int i = 0; i < numRows; ++i) {
-            for (int j = 0; j < numCols; ++j) {
-                grid[i, j].tileData = map.getTileData(i, j);
-            }
-        }
-
-        // Set path
-        TileData td;
-        List<TileData> map_path = map.getPath();
-        td = map_path[0];
-        grid[td.coord.row, td.coord.col].setSprite(TSprites.startTile);
-        path.Add(grid[td.coord.row, td.coord.col]);
-        for (int i = 1; i < map_path.Count-1; ++i) {
-            td = map_path[i];
-            grid[td.coord.row, td.coord.col].setSprite(TSprites.decideSprite(td.startDirection,td.endDirection));
-            path.Add(grid[td.coord.row, td.coord.col]);
-        }
-        td = map_path[map_path.Count-1];
-        grid[td.coord.row, td.coord.col].setSprite(TSprites.endTile);
-        path.Add(grid[td.coord.row, td.coord.col]);
+        GameState = GameManager.instance.getOwnGameState();
+        initMap();
     }
     
     // Update is called once per frame
     void Update () {
-        health.text = ownGameState.hp.ToString();
-        gold.text = "$" + ownGameState.gold.ToString();
+        health.text = GameState.hp.ToString();
+        gold.text = "$" + GameState.gold.ToString();
     }
 }
