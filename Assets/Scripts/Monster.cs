@@ -9,10 +9,10 @@ public class Monster : MonoBehaviour {
     // Monster data
     [SerializeField]
 	private float speed;
-    private string monsterType;
     public int damage;
     public int hp;
-	public int monsterId;    
+	public int monsterId;
+	public int price;
 
     // Pathfinding data
 	private Stack<PlayTile> path;
@@ -22,8 +22,6 @@ public class Monster : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-//		Debug.Log ("HELLOOOOO");
-		this.name = monsterType;
         this.hp = 10;
 		SetPath(playMap.path);
 	}
