@@ -162,7 +162,9 @@ public class PlayMap : MonoBehaviour {
         grid[td.coord.row, td.coord.col].setSprite(TSprites.endTile);
         path.Add(grid[td.coord.row, td.coord.col]);
     }
-    
+
+    static int val=-1;
+
     // Update is called once per frame
     void Update () {
         health.text = ownGameState.hp.ToString();
