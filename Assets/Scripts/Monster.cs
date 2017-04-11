@@ -23,7 +23,7 @@ public class Monster : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         this.hp = 10;
-        SetPath(playMap.path);
+        SetPath(playMap.getPath());
 	}
 
 	// Update is called once per frame

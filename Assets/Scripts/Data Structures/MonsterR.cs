@@ -12,7 +12,6 @@ public static class MonsterR {
 		IdMap = new Dictionary<int, Monster>();
 		IdMap.Add(1, Resources.Load<Monster>("Monsters/Monster1"));
 		IdMap.Add(2, Resources.Load<Monster>("Monsters/Monster2"));
-		IdMap.Add(3, Resources.Load<Monster>("Monsters/Monster3"));
 		foreach (KeyValuePair<int, Monster> pair in IdMap) {
 			pair.Value.monsterId = pair.Key;
 		}

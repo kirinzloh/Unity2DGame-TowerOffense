@@ -94,7 +94,7 @@ public class GameManager : Photon.PunBehaviour {
         }
     }
 
-    public void SendMonsterToOpponenet(Monster monsterPrefab) {
+    public void sendMonster(Monster monsterPrefab) {
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("spawnMonster", PhotonTargets.Others, monsterPrefab.monsterId);
         } else {

@@ -20,7 +20,7 @@ public class MonsterPanel : MonoBehaviour {
 			monsterbtn.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 			monsterbtn.transform.Translate (Vector3.up * 10000);
 			monsterbtn.GetComponent<Image>().sprite = monsterPrefab.GetComponent<SpriteRenderer>().sprite;
-			monsterbtn.GetComponent<Button>().onClick.AddListener(delegate { playMap.onMonsterBtnClick(monsterPrefab); });
+			monsterbtn.GetComponent<Button>().onClick.AddListener(delegate { GameManager.instance.sendMonster(monsterPrefab); });
 			monsterbtn.transform.GetChild(0).GetComponent<Text>().text = "$" + monsterPrefab.price;
 		}
 	}
