@@ -51,7 +51,9 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     [PunRPC]
     public void setSendMapData(bool sendmap) {
+        Debug.Log("in setsendmap data: " + sendmap); // DEBUG
         if (photonView.isMine) {
+            Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
             sendMapData = sendmap;
         }
     }
