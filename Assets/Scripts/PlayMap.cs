@@ -25,7 +25,12 @@ public class PlayMap : MonoBehaviour {
     public Text gold;
     public Text upgradeCost;
     public Text sellPrice;
+    public Text towerName;
+    public Text towerStats;
     public GameObject upgradePanel;
+    public GameObject towerInfo;
+    public Button upgradeTower;
+    public Button sellTower;
 
     public ProjectilePool projectilePool { get; set; }
 	public MonsterBtn ClickedMtrBtn { get; private set;}
@@ -35,6 +40,7 @@ public class PlayMap : MonoBehaviour {
         if (selectedTile==null) {
             switch (tile.state) {
                 case TileData.State.TOWER:
+                    DisplayTowerInfo(tile.tower);
                     DisplayUpgradePanel(tile.tower);     
                     selectedTile = tile;
                     tile.highlight();
@@ -50,14 +56,14 @@ public class PlayMap : MonoBehaviour {
             selectedTile = null;
             tile.unhighlight();
             HideUpgradePanel();
+            HideTowerInfo();
         }
     }
     
     // Called when tower button is clicked
     public void onTowerBtnClick(Tower towerPrefab) {
         if (selectedTile == null || selectedTile.state == TileData.State.TOWER) {
-            // Display info here.
-            // NOT IMPLEMENTED YET. // DEBUG
+            DisplayTowerInfo(towerPrefab);
             // Deselect tile if is a tower.
             if (selectedTile != null) {
                 selectedTile = null;
@@ -67,7 +73,6 @@ public class PlayMap : MonoBehaviour {
             // Try to build tower
             if (towerPrefab.price > ownGameState.gold) { return; }
             Tower tower = Instantiate(towerPrefab, selectedTile.transform.position, Quaternion.identity);
-            //tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
             selectedTile.setTower(tower);
             selectedTile.unhighlight();
             selectedTile = null;
@@ -89,19 +94,62 @@ public class PlayMap : MonoBehaviour {
     public void DisplayUpgradePanel(Tower tower)
     {
         // INCOMPLETE
+        if (tower.upgradeCost <= ownGameState.gold)
+        {
+            upgradeTower.onClick.AddListener(UpgradeTower);
+        }
         if (tower.upgradeCost > 0) {
             upgradeCost.text = "$" + tower.upgradeCost;
         }
-        sellPrice.text = "$" + (int) tower.price / 2;
+        else if (tower.upgradeCost <= 0)
+        {
+            upgradeCost.text = "MAX";
+        }
+        sellTower.onClick.AddListener(SellTower);
+        sellPrice.text = "$" + tower.price / 2;
         upgradePanel.SetActive(true);
     }
-
-    public void HideUpgradePanel() {
+    public void HideUpgradePanel()
+    {
         upgradePanel.SetActive(false);
     }
 
-	// To determine which monster button was selected
-	public void SelectMonster(MonsterBtn monsterBtn)
+    // To toggle display of tower info when a towerBtn/tower is clicked
+    public void DisplayTowerInfo(Tower tower)
+    {
+        this.towerName.text = tower.towerName;
+        towerStats.text = "DAMAGE: " + tower.damage + "\n" +
+                          "RANGE: " + tower.range + "\n" +
+                          "ATK SPEED: " + (1 / tower.delay) + "\n" +
+                          "ATK TYPE: ";
+                         
+        towerInfo.SetActive(true);
+    }
+    public void HideTowerInfo()
+    {
+        towerInfo.SetActive(false);
+    }
+
+    // Upgrade towers
+    public void UpgradeTower()
+    {
+        ownGameState.gold -= selectedTile.tower.upgradeCost;
+        int currentTowerID = selectedTile.tower.towerId;
+        int upgradedTowerID = currentTowerID + 1;
+        Tower upgradedTower = TowerR.getById(upgradedTowerID);
+        Tower tower = Instantiate(upgradedTower, selectedTile.transform.position, Quaternion.identity);
+        selectedTile.setTower(tower);
+    }
+
+    // Sell towers (not working yet)
+    public void SellTower()
+    {
+        ownGameState.gold += selectedTile.tower.price/2;
+        //selectedTile.destroyTower(); // NOT WORKING
+        HideUpgradePanel();
+    }
+    // To determine which monster button was selected
+    public void SelectMonster(MonsterBtn monsterBtn)
 	{
 		this.ClickedMtrBtn = monsterBtn;
 	}
