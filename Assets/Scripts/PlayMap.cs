@@ -16,8 +16,7 @@ public class PlayMap : ViewMap {
 
     // To Deprecate
     public ProjectilePool projectilePool { get; set; }
-    public MonsterBtn ClickedMtrBtn { get; private set;}
-    
+
     // When empty tiles are clicked, they are highlighted so that activity can be done.
     public void onTileClick(PlayTile tile) {
         if (selectedTile==null) {
@@ -54,6 +53,7 @@ public class PlayMap : ViewMap {
         } else {
             // Try to build tower
             if (towerPrefab.price > GameState.gold) { return; }
+			GameState.gold -= towerPrefab.price;
             Tower tower = Instantiate(towerPrefab, selectedTile.transform.position, Quaternion.identity);
             //tower.GetComponent<SpriteRenderer>().sortingOrder = selectedTile.coord.row;
             selectedTile.setTower(tower);
@@ -62,7 +62,9 @@ public class PlayMap : ViewMap {
         }
     }
 
-	// Called when monster button is clicked
+    // Called when monster button is clicked (on opponent side)
+    /*
+<<<<<<< PREVIOUS
 	public void spawnMonster() {
 		if (ClickedMtrBtn.price > GameState.gold) { return; }
 		GameState.gold -= ClickedMtrBtn.price;
@@ -71,7 +73,15 @@ public class PlayMap : ViewMap {
 		Monster monster_mtr = monster.GetComponent<Monster> ();
 		monster_mtr.playMap = this;
 		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
+    }
+=======
+	public void onMonsterBtnClick(Monster monsterPrefab) {
+		if (monsterPrefab.price > ownGameState.gold) { return; }
+		Monster monster = Instantiate (monsterPrefab, path [0].transform.position, Quaternion.identity);
+		monster.playMap = this;
 	}
+>>>>>>> master (NEW)
+    */
 
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(Tower tower)
@@ -87,12 +97,6 @@ public class PlayMap : ViewMap {
     public void HideUpgradePanel() {
         upgradePanel.SetActive(false);
     }
-
-	// To determine which monster button was selected
-	public void SelectMonster(MonsterBtn monsterBtn)
-	{
-		this.ClickedMtrBtn = monsterBtn;
-	}
 
     // To initalize the projectile pool
     private void Awake()
