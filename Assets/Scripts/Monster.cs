@@ -12,7 +12,7 @@ public class Monster : MonoBehaviour {
     private string monsterType;
     public int damage;
     public int hp;
-    
+	public int monsterId;    
 
     // Pathfinding data
 	private Stack<PlayTile> path;
