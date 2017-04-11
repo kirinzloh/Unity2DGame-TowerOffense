@@ -27,12 +27,8 @@ public class PlayMap : ViewMap {
         if (selectedTile==null) {
             switch (tile.state) {
                 case TileData.State.TOWER:
-<<<<<<< HEAD
                     DisplayTowerInfo(tile.tower);
                     DisplayUpgradePanel(tile.tower);     
-=======
-                    DisplayUpgradePanel(tile.tower);
->>>>>>> refs/remotes/origin/master
                     selectedTile = tile;
                     tile.highlight();
                     break;
@@ -83,9 +79,9 @@ public class PlayMap : ViewMap {
 		monster_mtr.playMap = this;
 		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
     }
-=======
+
 	public void onMonsterBtnClick(Monster monsterPrefab) {
-		if (monsterPrefab.price > ownGameState.gold) { return; }
+		if (monsterPrefab.price > GameState.gold) { return; }
 		Monster monster = Instantiate (monsterPrefab, path [0].transform.position, Quaternion.identity);
 		monster.playMap = this;
 	}
@@ -96,7 +92,7 @@ public class PlayMap : ViewMap {
     public void DisplayUpgradePanel(Tower tower)
     {
         // INCOMPLETE
-        if (tower.upgradeCost <= ownGameState.gold)
+        if (tower.upgradeCost <= GameState.gold)
         {
             upgradeTower.onClick.AddListener(UpgradeTower);
         }
@@ -115,8 +111,7 @@ public class PlayMap : ViewMap {
     {
         upgradePanel.SetActive(false);
     }
-
-<<<<<<< HEAD
+    
     // To toggle display of tower info when a towerBtn/tower is clicked
     public void DisplayTowerInfo(Tower tower)
     {
@@ -136,7 +131,7 @@ public class PlayMap : ViewMap {
     // Upgrade towers
     public void UpgradeTower()
     {
-        ownGameState.gold -= selectedTile.tower.upgradeCost;
+        GameState.gold -= selectedTile.tower.upgradeCost;
         int currentTowerID = selectedTile.tower.towerId;
         int upgradedTowerID = currentTowerID + 1;
         Tower upgradedTower = TowerR.getById(upgradedTowerID);
@@ -147,18 +142,11 @@ public class PlayMap : ViewMap {
     // Sell towers (not working yet)
     public void SellTower()
     {
-        ownGameState.gold += selectedTile.tower.price/2;
+        GameState.gold += selectedTile.tower.price/2;
         //selectedTile.destroyTower(); // NOT WORKING
         HideUpgradePanel();
     }
-    // To determine which monster button was selected
-    public void SelectMonster(MonsterBtn monsterBtn)
-	{
-		this.ClickedMtrBtn = monsterBtn;
-	}
 
-=======
->>>>>>> refs/remotes/origin/master
     // To initalize the projectile pool
     private void Awake()
     {

@@ -34,6 +34,14 @@ public class ViewTile : MonoBehaviour {
         tileData.towerType = tower.towerId;
     }
 
+    // NOT WORKING (It only destroys the tower script attached, game object still exists)
+    /*public void destroyTower()
+    {
+        Destroy(this.tower);
+        state = TileData.State.EMPTY;
+        tileData.towerType = 0;
+    }*/
+
     public void setSprite(Sprite sprite) {
         spriteR.sprite = sprite;
     }
