@@ -17,6 +17,7 @@ public class TowerPanel : MonoBehaviour {
             towerbtn.transform.SetParent(grid, false);
             towerbtn.transform.localScale = new Vector3(1, 1, 1);
             towerbtn.GetComponent<Image>().sprite = towerPrefab.GetComponent<SpriteRenderer>().sprite;
+            towerbtn.GetComponent<Image>().color = towerPrefab.GetComponent<SpriteRenderer>().color;
             towerbtn.GetComponent<Button>().onClick.AddListener(delegate { playMap.onTowerBtnClick(towerPrefab); });
             towerbtn.transform.GetChild(0).GetComponent<Text>().text = "$" + towerPrefab.price;
         }
