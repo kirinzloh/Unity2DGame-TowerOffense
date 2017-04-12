@@ -67,6 +67,14 @@ public class PlayMap : ViewMap {
         }
     }
 
+    
+    public void spawnMonster(int monsterId) {
+
+        /*GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
+        Monster monster_mtr = monster.GetComponent<Monster>();
+        monster_mtr.playMap = this;
+        monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;*/
+    }
     // Called when monster button is clicked (on opponent side)
     /*
 <<<<<<< PREVIOUS

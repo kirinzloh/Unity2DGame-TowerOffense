@@ -90,15 +90,18 @@ public class GameManager : Photon.PunBehaviour {
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("setSendMapData", PhotonTargets.Others, sendData);
         } else {
+            // DEBUG
             getOpponentGameState().sendMapData = sendData;
         }
     }
 
     public void sendMonster(Monster monsterPrefab) {
+        getOwnGameState().gold -= monsterPrefab.price;
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("spawnMonster", PhotonTargets.Others, monsterPrefab.monsterId);
         } else {
-            getOpponentGameState().spawnMonster(monsterPrefab.monsterId);
+            // DEBUG
+            getOwnGameState().spawnMonster(monsterPrefab.monsterId);
         }
     }
     #endregion

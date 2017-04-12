@@ -9,7 +9,9 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public int hp;
     public int gold;
     public MapData map;
-    public ViewMap viewMapReference;
+    public ViewMap viewMapRef;
+    public Dictionary<Coord, Tower> towerRef;
+    public Dictionary<int, Monster> monsterRef;
     
     public bool sendMapData = false;
 
@@ -22,6 +24,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     // Use this for initialization
     void Start () {
         gameObject.transform.parent = GameManager.instance.transform;
+        towerRef = new Dictionary<Coord, Tower>();
+        monsterRef = new Dictionary<int, Monster>();
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
         }
@@ -61,7 +65,9 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     [PunRPC]
     public void spawnMonster(int monsterId) {
         //Should maintain a pool of monsters in the game state.
-        //viewMapReference.spawnMonster();
+        if (photonView.isMine) {
+            ((PlayMap)viewMapRef).spawnMonster(monsterId);
+        }
     }
     #endregion
 
@@ -72,6 +78,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             stream.SendNext(sendMapData);
             if (sendMapData) {
                 stream.SendNext(map.serializePlay());
+                stream.SendNext(serializeTowers());
+                stream.SendNext(serializeMonsters());
             }
         } else {
             // Note: In NetworkingPeer.cs : NetworkingPeer.OnSerializeWrite()
@@ -83,5 +91,15 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
                 map.deserializePlay((byte[])stream.ReceiveNext());
             }
         }
+    }
+
+    byte[] serializeTowers() {
+        // Not implemented yet!
+        return new byte[0]; // DEBUG
+    }
+
+    byte[] serializeMonsters() {
+        // Not implemented yet!
+        return new byte[0]; // DEBUG
     }
 }

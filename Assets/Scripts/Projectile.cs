@@ -43,7 +43,7 @@ public class Projectile : MonoBehaviour
         {
             if (target.gameObject == other.gameObject)
             {
-                target.TakeDamage(towerType.Damage);
+                target.TakeDamage(towerType.damage);
             }
             Release();
         }
