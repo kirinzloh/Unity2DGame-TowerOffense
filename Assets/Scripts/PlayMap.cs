@@ -10,40 +10,36 @@ public class PlayMap : ViewMap {
 
     // UI stuff
     public Text gold;
-    public Text upgradeCost;
-    public Text sellPrice;
     public Text towerName;
     public Text towerStats;
     public GameObject upgradePanel;
     public GameObject towerInfo;
-    public Button upgradeTower;
-    public Button sellTower;
+    public Button upgradeTowerBtn;
+    public Text upgradeCost;
+    public Button sellTowerBtn;
+    public Text sellPrice;
 
     // To Deprecate
     public ProjectilePool projectilePool { get; set; }
 
-    // When empty tiles are clicked, they are highlighted so that activity can be done.
+    // Tile click selects tiles. Click again to unselect.
     public void onTileClick(PlayTile tile) {
-        if (selectedTile==null) {
-            switch (tile.state) {
-                case TileData.State.TOWER:
-                    DisplayTowerInfo(tile.tower);
-                    DisplayUpgradePanel(tile.tower);     
-                    selectedTile = tile;
-                    tile.highlight();
-                    break;
-                case TileData.State.EMPTY:
-                    selectedTile = tile;
-                    tile.highlight();
-                    break;
-                default:
-                    break;
-            }
-        } else if (tile.Equals(selectedTile)) {
-            selectedTile = null;
-            tile.unhighlight();
-            HideUpgradePanel();
-            HideTowerInfo();
+        PlayTile prev = selectedTile;
+        DeselectTile();
+        if (tile.Equals(prev)) { return; }
+        switch (tile.state) {
+            case TileData.State.TOWER:
+                DisplayTowerInfo(tile.tower);
+                DisplayUpgradePanel(tile.tower);
+                selectedTile = tile;
+                tile.highlight();
+                break;
+            case TileData.State.EMPTY:
+                selectedTile = tile;
+                tile.highlight();
+                break;
+            default:
+                break;
         }
     }
     
@@ -51,60 +47,40 @@ public class PlayMap : ViewMap {
     public void onTowerBtnClick(Tower towerPrefab) {
         if (selectedTile == null || selectedTile.state == TileData.State.TOWER) {
             DisplayTowerInfo(towerPrefab);
-            // Deselect tile if is a tower.
             if (selectedTile != null) {
-                selectedTile = null;
-                selectedTile.unhighlight();
+                DeselectTile();
             }
         } else {
             // Try to build tower
             if (towerPrefab.price > GameState.gold) { return; }
-			GameState.gold -= towerPrefab.price;
-            Tower tower = Instantiate(towerPrefab, selectedTile.transform.position, Quaternion.identity);
+            GameState.gold -= towerPrefab.price;
+            Tower tower = Instantiate(towerPrefab);
             selectedTile.setTower(tower);
             selectedTile.unhighlight();
             selectedTile = null;
         }
     }
 
-    // Called when monster button is clicked (on opponent side)
-    /*
-<<<<<<< PREVIOUS
-	public void spawnMonster() {
-		if (ClickedMtrBtn.price > GameState.gold) { return; }
-		GameState.gold -= ClickedMtrBtn.price;
-		//Debug.Log (path[0].transform.position);
-		GameObject monster = (GameObject)Instantiate(ClickedMtrBtn.monsterPrefab, path[0].transform.position, Quaternion.identity);
-		Monster monster_mtr = monster.GetComponent<Monster> ();
-		monster_mtr.playMap = this;
-		monster.GetComponent<SpriteRenderer>().sortingOrder = path[0].coord.row;
-    }
 
-	public void onMonsterBtnClick(Monster monsterPrefab) {
-		if (monsterPrefab.price > GameState.gold) { return; }
-		Monster monster = Instantiate (monsterPrefab, path [0].transform.position, Quaternion.identity);
-		monster.playMap = this;
-	}
->>>>>>> master (NEW)
-    */
+    public void spawnMonster(Monster monster) {
+        monster.playMap = this;
+        monster.transform.position = path[0].transform.position;
+    }
 
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(Tower tower)
     {
         // INCOMPLETE
-        if (tower.upgradeCost <= GameState.gold)
-        {
-            upgradeTower.onClick.AddListener(UpgradeTower);
-        }
         if (tower.upgradeCost > 0) {
             upgradeCost.text = "$" + tower.upgradeCost;
+            upgradeTowerBtn.interactable = true;
         }
         else if (tower.upgradeCost <= 0)
         {
             upgradeCost.text = "MAX";
+            upgradeTowerBtn.interactable = false;
         }
-        sellTower.onClick.AddListener(SellTower);
-        sellPrice.text = "$" + tower.price / 2;
+        sellPrice.text = "$" + (tower.price / 2);
         upgradePanel.SetActive(true);
     }
     public void HideUpgradePanel()
@@ -118,9 +94,7 @@ public class PlayMap : ViewMap {
         this.towerName.text = tower.towerName;
         towerStats.text = "DAMAGE: " + tower.damage + "\n" +
                           "RANGE: " + tower.range + "\n" +
-                          "ATK SPEED: " + (1 / tower.delay) + "\n" +
-                          "ATK TYPE: ";
-                         
+                          "ATK SPEED: " + (1 / tower.delay);
         towerInfo.SetActive(true);
     }
     public void HideTowerInfo()
@@ -128,23 +102,35 @@ public class PlayMap : ViewMap {
         towerInfo.SetActive(false);
     }
 
+    public void DeselectTile() {
+        if (selectedTile == null) { return; }
+        selectedTile.unhighlight();
+        selectedTile = null;
+        HideUpgradePanel();
+        HideTowerInfo();
+    }
+
     // Upgrade towers
     public void UpgradeTower()
     {
+        if (selectedTile.tower.upgradeCost > GameState.gold || selectedTile.tower.upgradeCost<=0) { return; }
         GameState.gold -= selectedTile.tower.upgradeCost;
         int currentTowerID = selectedTile.tower.towerId;
         int upgradedTowerID = currentTowerID + 1;
         Tower upgradedTower = TowerR.getById(upgradedTowerID);
-        Tower tower = Instantiate(upgradedTower, selectedTile.transform.position, Quaternion.identity);
+        Tower tower = Instantiate(upgradedTower);
         selectedTile.setTower(tower);
+        // Refresh display.
+        DisplayUpgradePanel(tower);
+        DisplayTowerInfo(tower);
     }
 
     // Sell towers (not working yet)
     public void SellTower()
     {
         GameState.gold += selectedTile.tower.price/2;
-        //selectedTile.destroyTower(); // NOT WORKING
-        HideUpgradePanel();
+        selectedTile.removeTower();
+        DeselectTile();
     }
 
     // To initalize the projectile pool
@@ -156,6 +142,7 @@ public class PlayMap : ViewMap {
     // Use this for initialization
     void Start () {
         GameState = GameManager.instance.getOwnGameState();
+        GameState.viewMapRef = this;
         initMap();
     }
     

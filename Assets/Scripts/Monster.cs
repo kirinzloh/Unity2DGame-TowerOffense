@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Monster : MonoBehaviour {
 
-    public PlayMap playMap;
+    public ViewMap playMap;
 
     // Monster data
     [SerializeField]
@@ -48,7 +48,6 @@ public class Monster : MonoBehaviour {
 			if (path != null && path.Count > 0) {
 				gridPosition = path.Peek ().tileData.coord; 
 				destination = path.Pop ().transform.position;
-				//Debug.Log (destination);
 			}
 			else {
 				playMap.GameState.hp -= this.damage;
@@ -61,7 +60,7 @@ public class Monster : MonoBehaviour {
 
 	void SetPath(List<ViewTile> pathList)
 	{
-//		Debug.Log(pathList);
+        Debug.Log(pathList);
 		if (pathList != null) {
 			List<ViewTile> reversedList = new List<ViewTile> (pathList);
 			reversedList.Reverse ();

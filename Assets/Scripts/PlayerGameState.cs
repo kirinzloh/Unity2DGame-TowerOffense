@@ -9,7 +9,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public int hp;
     public int gold;
     public MapData map;
-    public ViewMap viewMapReference;
+    public ViewMap viewMapRef;
+    public Dictionary<int, Monster> monsterRef;
     
     public bool sendMapData = false;
 
@@ -21,7 +22,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Use this for initialization
     void Start () {
-        gameObject.transform.parent = GameManager.instance.transform;
+        gameObject.transform.SetParent(GameManager.instance.transform);
+        monsterRef = new Dictionary<int, Monster>();
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
         }
@@ -52,7 +54,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     [PunRPC]
     public void setSendMapData(bool sendmap) {
         Debug.Log("in setsendmap data: " + sendmap); // DEBUG
-        if (photonView.isMine) {
+        if (photonView == null || photonView.isMine) {
             Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
             sendMapData = sendmap;
         }
@@ -60,8 +62,11 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     [PunRPC]
     public void spawnMonster(int monsterId) {
-        //Should maintain a pool of monsters in the game state.
-        //viewMapReference.spawnMonster();
+        if (photonView==null || photonView.isMine) {
+            Monster monster = Instantiate(MonsterR.getById(monsterId));
+            // DEBUG TO IMPLEMENT Should maintain a pool of monsters in the game state.
+            ((PlayMap)viewMapRef).spawnMonster(monster);
+        }
     }
     #endregion
 
@@ -72,6 +77,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             stream.SendNext(sendMapData);
             if (sendMapData) {
                 stream.SendNext(map.serializePlay());
+                stream.SendNext(serializeTowers());
+                stream.SendNext(serializeMonsters());
             }
         } else {
             // Note: In NetworkingPeer.cs : NetworkingPeer.OnSerializeWrite()
@@ -81,7 +88,18 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             this.sendMapData = (bool)stream.ReceiveNext();
             if (sendMapData) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
+                viewMapRef.refreshMap();
             }
         }
+    }
+
+    byte[] serializeTowers() {
+        // Not implemented yet!
+        return new byte[0]; // DEBUG
+    }
+
+    byte[] serializeMonsters() {
+        // Not implemented yet!
+        return new byte[0]; // DEBUG
     }
 }

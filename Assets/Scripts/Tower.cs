@@ -91,16 +91,8 @@ public class Tower : MonoBehaviour {
         }
     }
 
-    public float GetProjectileSpeed {
-        get { return projectileSpeed; }
-    }
-
     public Monster GetTarget {
         get { return target; }
-    }
-
-    public int Damage {
-        get { return damage;}
     }
 
 }
