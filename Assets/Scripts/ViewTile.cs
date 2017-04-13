@@ -32,7 +32,7 @@ public class ViewTile : MonoBehaviour {
             Destroy(this.tower.gameObject);
         }
         this.tower = tower;
-        tower.transform.SetParent(transform);
+        tower.transform.SetParent(transform, false);
         state = TileData.State.TOWER;
         tileData.towerType = tower.towerId;
     }

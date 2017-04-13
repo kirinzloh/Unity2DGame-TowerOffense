@@ -54,7 +54,7 @@ public class PlayMap : ViewMap {
             // Try to build tower
             if (towerPrefab.price > GameState.gold) { return; }
             GameState.gold -= towerPrefab.price;
-            Tower tower = Instantiate(towerPrefab, selectedTile.transform.position, Quaternion.identity);
+            Tower tower = Instantiate(towerPrefab);
             selectedTile.setTower(tower);
             selectedTile.unhighlight();
             selectedTile = null;
@@ -118,7 +118,7 @@ public class PlayMap : ViewMap {
         int currentTowerID = selectedTile.tower.towerId;
         int upgradedTowerID = currentTowerID + 1;
         Tower upgradedTower = TowerR.getById(upgradedTowerID);
-        Tower tower = Instantiate(upgradedTower, selectedTile.transform.position, Quaternion.identity);
+        Tower tower = Instantiate(upgradedTower);
         selectedTile.setTower(tower);
         // Refresh display.
         DisplayUpgradePanel(tower);

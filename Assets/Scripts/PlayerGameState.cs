@@ -22,7 +22,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Use this for initialization
     void Start () {
-        gameObject.transform.parent = GameManager.instance.transform;
+        gameObject.transform.SetParent(GameManager.instance.transform);
         monsterRef = new Dictionary<int, Monster>();
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
@@ -88,6 +88,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             this.sendMapData = (bool)stream.ReceiveNext();
             if (sendMapData) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
+                viewMapRef.refreshMap();
             }
         }
     }
