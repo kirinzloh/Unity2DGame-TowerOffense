@@ -10,7 +10,6 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public int gold;
     public MapData map;
     public ViewMap viewMapRef;
-    public Dictionary<Coord, Tower> towerRef;
     public Dictionary<int, Monster> monsterRef;
     
     public bool sendMapData = false;
@@ -24,7 +23,6 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     // Use this for initialization
     void Start () {
         gameObject.transform.parent = GameManager.instance.transform;
-        towerRef = new Dictionary<Coord, Tower>();
         monsterRef = new Dictionary<int, Monster>();
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
@@ -56,7 +54,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     [PunRPC]
     public void setSendMapData(bool sendmap) {
         Debug.Log("in setsendmap data: " + sendmap); // DEBUG
-        if (photonView.isMine) {
+        if (photonView == null || photonView.isMine) {
             Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
             sendMapData = sendmap;
         }
@@ -64,9 +62,10 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     [PunRPC]
     public void spawnMonster(int monsterId) {
-        //Should maintain a pool of monsters in the game state.
-        if (photonView.isMine) {
-            ((PlayMap)viewMapRef).spawnMonster(monsterId);
+        if (photonView==null || photonView.isMine) {
+            Monster monster = Instantiate(MonsterR.getById(monsterId));
+            // DEBUG TO IMPLEMENT Should maintain a pool of monsters in the game state.
+            ((PlayMap)viewMapRef).spawnMonster(monster);
         }
     }
     #endregion

@@ -83,7 +83,6 @@ public class ViewMap : MonoBehaviour {
     void Update () {
         health.text = GameState.hp.ToString();
         if (!GameState.sendMapData) { return; }
-        Debug.Log("after check"); // DEBUG
         for (int i = 0; i < numRows; ++i) {
             for (int j = 0; j < numCols; ++j) {
                 int towerid = grid[i, j].tower == null ? 0 : grid[i, j].tower.towerId;
@@ -93,6 +92,5 @@ public class ViewMap : MonoBehaviour {
                 };
             }
         }
-        Debug.Log("updated"); // DEBUG
     }
 }

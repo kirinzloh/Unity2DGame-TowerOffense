@@ -21,19 +21,6 @@ public static class MonsterR {
 		return IdMap[id];
 	}
 
-	public static List<Monster> getBaseMonsters() {
-		Debug.Log ("There");
-		List<Monster> monsters = new List<Monster>();
-		foreach (KeyValuePair<int, Monster> pair in IdMap) {
-			if (pair.Key % 1 == 0) {
-				monsters.Add(pair.Value);
-			}
-		}
-		Debug.Log (monsters);
-		monsters.Sort((x, y) => x.monsterId.CompareTo(y.monsterId));
-		return monsters;
-	}
-
 	public static List<Monster> getAllMonsters() {
 		List<Monster> monsters = new List<Monster>();
 		foreach (KeyValuePair<int, Monster> pair in IdMap) {
