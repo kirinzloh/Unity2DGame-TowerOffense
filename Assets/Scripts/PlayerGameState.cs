@@ -11,6 +11,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public MapData map;
     public ViewMap viewMapRef;
     public Dictionary<int, Monster> monsterRef;
+    public int monsterCount;
     
     public bool sendMapData = false;
 
@@ -40,6 +41,18 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Update is called once per frame
     void Update () {
+        serializeMonsters(); // Debug
+    }
+
+    public void takeDamage(int damage) {
+        if (photonView == null || photonView.isMine) {
+            hp -= damage;
+        }
+    }
+
+    public void destroyMonster(Monster monster) {
+        monsterRef.Remove(monster.serializeId);
+        Destroy(monster.gameObject);
     }
 
     #region rpcs
@@ -65,7 +78,10 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         if (photonView==null || photonView.isMine) {
             Monster monster = Instantiate(MonsterR.getById(monsterId));
             // DEBUG TO IMPLEMENT Should maintain a pool of monsters in the game state.
-            ((PlayMap)viewMapRef).spawnMonster(monster);
+            monster.gameState = this;
+            monster.SetPath(viewMapRef.getPath());
+            monster.serializeId = ++monsterCount;
+            monsterRef[monster.serializeId] = monster;
         }
     }
     #endregion
@@ -77,7 +93,6 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             stream.SendNext(sendMapData);
             if (sendMapData) {
                 stream.SendNext(map.serializePlay());
-                stream.SendNext(serializeTowers());
                 stream.SendNext(serializeMonsters());
             }
         } else {
@@ -93,13 +108,22 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         }
     }
 
-    byte[] serializeTowers() {
-        // Not implemented yet!
-        return new byte[0]; // DEBUG
+    byte[] serializeMonsters() {
+        byte[] monsterBytes = new byte[monsterRef.Count*Monster.serialize_size];
+        int index = 0;
+        foreach (KeyValuePair<int, Monster> pair in monsterRef) {
+            pair.Value.serializeTo(monsterBytes, ref index);
+        }
+
+        // DEBUG
+        string x = "";
+        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        UnityEngine.Debug.Log(x);
+        // DEBUG
+        return monsterBytes; // DEBUG
     }
 
-    byte[] serializeMonsters() {
-        // Not implemented yet!
-        return new byte[0]; // DEBUG
+    void deserializeMonsters(byte[] monsterBytes) {
+        
     }
 }

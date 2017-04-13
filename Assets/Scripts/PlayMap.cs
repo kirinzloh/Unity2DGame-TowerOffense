@@ -61,12 +61,6 @@ public class PlayMap : ViewMap {
         }
     }
 
-
-    public void spawnMonster(Monster monster) {
-        monster.playMap = this;
-        monster.transform.position = path[0].transform.position;
-    }
-
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(Tower tower)
     {
