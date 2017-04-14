@@ -28,9 +28,9 @@ public class ChangeDisplayBtn : MonoBehaviour {
             ViewDisplay[i].SetActive(inView);
         }
         if (inView) {
-            buttonText.text = "My\nView";
+            buttonText.text = "My View";
         } else {
-            buttonText.text = "Enemy\nView";
+            buttonText.text = "Enemy View";
         }
         GameManager.instance.toggleOpponentSendMapData(inView); //getOpponentGameState().sendMapData = inView;
     }
