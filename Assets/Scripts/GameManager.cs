@@ -125,7 +125,7 @@ public class GameManager : Photon.PunBehaviour {
             proj.projData = projData;
             proj.target = target;
             proj.source = source;
-            proj.transform.position = source;
+            proj.Initialize();
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
             if (getOwnGameState().sendMapData && PhotonNetwork.connected) {
                 photonView.RPC("shootViewProjectile", PhotonTargets.Others, projData.serialize());
@@ -226,7 +226,7 @@ public class GameManager : Photon.PunBehaviour {
             proj.projData = projData;
             proj.target = target;
             proj.source = source;
-            proj.transform.position = source;
+            proj.Initialize();
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
         } catch (KeyNotFoundException e) {
             Debug.LogWarning(e.StackTrace);

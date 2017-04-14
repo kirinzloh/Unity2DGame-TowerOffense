@@ -34,35 +34,35 @@ public class Tower : MonoBehaviour {
         Transform child = transform.GetChild(0);
         child.localScale = new Vector3(range*2,range*2,1);
         rangeSpriteRenderer = child.GetComponent<SpriteRenderer>();
-        GetComponent<CircleCollider2D>().radius = range;
         monsters = new Queue<Monster>();
         canAttack = true;
     }
 
     // Update is called once per frame
     void Update() {
-        Attack();
-    }
+        List<Monster> potentialTargets = new List<Monster>();
 
-    private void Attack() {
-        if (!canAttack) {
-            attackTimer += Time.deltaTime;
-            if (attackTimer >= delay) {
-                canAttack = true;
-                attackTimer = 0;
+        foreach (Collider2D inrange in Physics2D.OverlapCircleAll(transform.position, range, 1 << 2)) {
+            if (inrange.CompareTag("Monster")) {
+                potentialTargets.Add(inrange.GetComponent<Monster>());
             }
         }
-        if (target == null && monsters.Count > 0)
-        {
-            target = monsters.Dequeue();
+
+        if (!potentialTargets.Contains(target)) {
+            target = null;
         }
-        if (target != null)
-        {
-            if (canAttack == true)
-            {
-                Shoot();
-                canAttack = false;
+        foreach (Monster monster in potentialTargets) {
+            if (target == null || monster.pathDestIndex > target.pathDestIndex) {
+                target = monster;
             }
+        }
+
+        if (attackTimer > 0) {
+            attackTimer -= Time.deltaTime;
+        }
+        if (attackTimer <= 0 && target != null) {
+            Shoot();
+            attackTimer = delay;
         }
     }
 
@@ -83,19 +83,6 @@ public class Tower : MonoBehaviour {
         GameManager.instance.shootProjectile(projData);
     }
 
-    public void OnTriggerEnter2D(Collider2D other) {
-        if (other.tag == "Monster") {
-            Debug.Log(monsters + "|" + other); // DEBUG
-            monsters.Enqueue(other.GetComponent<Monster>());
-        }
-    }
-
-    public void OnTriggerExit2D(Collider2D other) {
-        if (other.tag == "Monster") {
-            target = null;
-        }
-    }
-
     public void ShowRange() {
         if (rangeSpriteRenderer != null) {
             rangeSpriteRenderer.enabled = true;
@@ -107,9 +94,4 @@ public class Tower : MonoBehaviour {
             rangeSpriteRenderer.enabled = false;
         }
     }
-
-    public Monster GetTarget {
-        get { return target; }
-    }
-
 }
