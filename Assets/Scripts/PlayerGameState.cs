@@ -2,11 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-<<<<<<< HEAD
 using UnityEngine.UI;
-=======
 using ExitGames.Client.Photon;
->>>>>>> 407f2d5c0d565d032242c00c84c732d77bcdd009
 
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
