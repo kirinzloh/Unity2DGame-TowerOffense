@@ -24,6 +24,13 @@ public class ViewMap : MonoBehaviour {
         return path;
     }
 
+    public ViewTile getTile(int i, int j) {
+        if (i < 0 || j < 0 || i >= grid.GetLength(0) || j >= grid.GetLength(1)) {
+            return null;
+        }
+        return grid[i, j];
+    }
+
     // Use this for initialization
     void Start () {
         GameState = GameManager.instance.getOpponentGameState();

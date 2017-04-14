@@ -45,7 +45,10 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     // Update is called once per frame
     void Update () {
 		if (hp <= 0) {
-			photonView.RPC("sendLosingPlayerId", PhotonTargets.AllViaServer, playerId);
+            if (PhotonNetwork.connected && photonView.isMine) { // DEBUG
+                photonView.RPC("sendLosingPlayerId", PhotonTargets.AllViaServer, playerId);
+                hp = 10; // Stopgap
+            }
 		}
     }
 
@@ -181,10 +184,14 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             monster.deserializeFrom(monsterBytes, ref index);
         }
         // Remove no longer existing monsters.
+        List<Monster> toDestroy = new List<Monster>();
         foreach (KeyValuePair<int, Monster> pair in monsterRef) {
             if (!newSerializeIds.Contains(pair.Key)) {
-                destroyMonster(pair.Value);
+                toDestroy.Add(pair.Value);
             }
+        }
+        foreach (Monster m in toDestroy) {
+            destroyMonster(m);
         }
     }
 }

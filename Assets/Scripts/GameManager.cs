@@ -8,6 +8,7 @@ public class GameManager : Photon.PunBehaviour {
 
     public static GameManager instance;
     public Text infoDisplay;
+    public ProjectilePool projectilePool;
 
     // Client version number.
     string _gameVersion = "1";
@@ -30,6 +31,14 @@ public class GameManager : Photon.PunBehaviour {
         return gameStates[OpponentIdIndex];
     }
 
+    public int getTime() { // Returns a timestamp counting number of ms. Only makes sense for time intervals.
+        if (PhotonNetwork.inRoom) {
+            return PhotonNetwork.ServerTimestamp;
+        } else {
+            return (int)(Time.time * 1000);
+        }
+    }
+
     // Called on startup/construction
     void Awake() {
         // For singleton
@@ -50,6 +59,8 @@ public class GameManager : Photon.PunBehaviour {
         PhotonNetwork.sendRateOnSerialize = 5; // Default 10
 
         PhotonNetwork.logLevel = Loglevel;
+
+        projectilePool = new ProjectilePool();
     }
     
     void Start() {
@@ -104,6 +115,26 @@ public class GameManager : Photon.PunBehaviour {
             getOwnGameState().spawnMonster(monsterPrefab.monsterId);
         }
     }
+
+    public void shootProjectile(ProjectileData projData) {
+        try {
+            PlayerGameState ownGameState = getOwnGameState();
+            Monster target = ownGameState.monsterRef[projData.targetSerializeId];
+            Vector2 source = ownGameState.viewMapRef.getTile(projData.startCoord.row, projData.startCoord.col).transform.position;
+            Projectile proj = projectilePool.GetProjectile();
+            proj.projData = projData;
+            proj.target = target;
+            proj.source = source;
+            proj.transform.position = source;
+            proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
+            if (getOwnGameState().sendMapData && PhotonNetwork.connected) {
+                photonView.RPC("shootViewProjectile", PhotonTargets.Others, projData.serialize());
+            }
+        } catch (KeyNotFoundException e) {
+            Debug.LogWarning(e.StackTrace);
+        }
+    }
+
     #endregion
 
     #region networking callbacks
@@ -181,6 +212,25 @@ public class GameManager : Photon.PunBehaviour {
         int index = System.Array.IndexOf(playerIds, playerid);
         gameStates[index].map = MapData.deserializeNew(serialisedMap);
         photonView.RPC("LoadWhenReady", PhotonTargets.AllViaServer, 3);
+    }
+
+    [PunRPC]
+    public void shootViewProjectile(byte[] ProjectileBytes) {
+        try {
+            ProjectileData projData = ProjectileData.deserialize(ProjectileBytes);
+            projData.startTime = getTime();
+            PlayerGameState oppGameState = getOpponentGameState();
+            Monster target = oppGameState.monsterRef[projData.targetSerializeId];
+            Vector2 source = oppGameState.viewMapRef.getTile(projData.startCoord.row, projData.startCoord.col).transform.position;
+            Projectile proj = projectilePool.GetProjectile();
+            proj.projData = projData;
+            proj.target = target;
+            proj.source = source;
+            proj.transform.position = source;
+            proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
+        } catch (KeyNotFoundException e) {
+            Debug.LogWarning(e.StackTrace);
+        }
     }
     #endregion
 

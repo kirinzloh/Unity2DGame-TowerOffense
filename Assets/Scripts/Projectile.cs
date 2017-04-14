@@ -4,54 +4,55 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private Monster target;
-    private Tower towerType;
-
+    public SpriteRenderer spriteR;
+    public Monster target;
+    public Vector2 source;
+    public ProjectileData projData;
+    private float interval;
+    
     // Use this for initialization
     void Start()
     {
-
+        transform.position = source;
+        interval = projData.hitTime - projData.startTime;
+        if (interval <= 0) {
+            hitTarget();
+        }
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        AttackTarget();
-    }
-
-    public void Initialize(Tower towerType)
-    {
-        this.target = towerType.GetTarget;
-        this.towerType = towerType;
-    }
-
-    private void AttackTarget()
-    {
-        if (target != null)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, Time.deltaTime * towerType.projectileSpeed);
-        }
-        else
-        {
+    void Update() {
+        if (target == null) { // Target disappeared.
             Release();
+            return;
+        }
+
+        int elapsedtime = GameManager.instance.getTime() - projData.startTime;
+        float progress = elapsedtime / interval;
+        transform.position = Vector2.Lerp(source, target.transform.position, progress);
+        if (progress >= 1) {
+            hitTarget();
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.tag == "Monster")
-        {
-            if (target.gameObject == other.gameObject)
-            {
-                target.TakeDamage(towerType.damage);
-                target.inflictSlow(2000); // DEBUG
+    private void hitTarget() {
+        foreach (Collider2D inrange in Physics2D.OverlapCircleAll(target.transform.position, projData.splashRadius, 1<<2)) {
+            if (inrange.CompareTag("Monster")) {
+                Monster monster = inrange.GetComponent<Monster>();
+                monster.TakeDamage(projData.damage);
+                if (projData.stunTime > 0) {
+                    monster.inflictStun(projData.stunTime);
+                }
+                if (projData.slowTime > 0) {
+                    monster.inflictSlow(projData.slowTime);
+                }
             }
-            Release();
         }
+        Release();
     }
-
+    
     private void Release()
     {
-        Object.FindObjectOfType<PlayMap>().projectilePool.ReleaseProjectile(gameObject);
+        GameManager.instance.projectilePool.ReleaseProjectile(this);
     }
 }

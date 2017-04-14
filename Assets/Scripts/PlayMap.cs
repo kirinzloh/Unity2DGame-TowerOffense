@@ -19,9 +19,6 @@ public class PlayMap : ViewMap {
     public Button sellTowerBtn;
     public Text sellPrice;
 
-    // To Deprecate
-    public ProjectilePool projectilePool { get; set; }
-
     // Tile click selects tiles. Click again to unselect.
     public void onTileClick(PlayTile tile) {
         PlayTile prev = selectedTile;
@@ -126,13 +123,7 @@ public class PlayMap : ViewMap {
         selectedTile.removeTower();
         DeselectTile();
     }
-
-    // To initalize the projectile pool
-    private void Awake()
-    {
-        projectilePool = GetComponent<ProjectilePool>();
-    }
-
+    
     // Use this for initialization
     void Start () {
         GameState = GameManager.instance.getOwnGameState();

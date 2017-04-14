@@ -11,14 +11,19 @@ public class Tower : MonoBehaviour {
     public string towerName;
     public int price;
     public int upgradeCost;   // set to 0 to disable upgrade.
-    public int damage;
     public float range;       // Radius
     public float delay;       // Number of sec per attack
-    public string attackType; // ??? Included temporarily first. May not be used.
-    public float projectileSpeed;
-    public string projectileType;
+    // Projectile stats
+    public float projectileSpeed; // GameUnits/second
+    public int damage;
+    public int stunTime;         // in ms
+    public int slowTime;         // in ms
+    public float splashRadius;
+    public Sprite projectileSprite;
+    // To check
 
     // Data for shooting projectiles
+    public Coord coord;
     private Queue<Monster> monsters;
     private Monster target;
     private bool canAttack;
@@ -62,13 +67,25 @@ public class Tower : MonoBehaviour {
     }
 
     private void Shoot() {
-        Projectile projectile = Object.FindObjectOfType<PlayMap>().projectilePool.GetProjectile(projectileType).GetComponent<Projectile>();
-        projectile.transform.position = transform.position;
-        projectile.Initialize(this);
+        ProjectileData projData = new ProjectileData();
+        projData.targetSerializeId = target.serializeId;
+        projData.towerId = towerId;
+        projData.startCoord = coord;
+        float distance = Vector2.Distance(this.transform.position, target.transform.position);
+        int msTime = (int) (1000 * distance / projectileSpeed);
+        Debug.Log("tower" + towerId + " | distance: " + distance + " | time: " + msTime); // DEBUG
+        projData.startTime = GameManager.instance.getTime();
+        projData.hitTime = projData.startTime + msTime;
+        projData.damage = damage;
+        projData.stunTime = stunTime;
+        projData.slowTime = slowTime;
+        projData.splashRadius = splashRadius;
+        GameManager.instance.shootProjectile(projData);
     }
 
     public void OnTriggerEnter2D(Collider2D other) {
         if (other.tag == "Monster") {
+            Debug.Log(monsters + "|" + other); // DEBUG
             monsters.Enqueue(other.GetComponent<Monster>());
         }
     }

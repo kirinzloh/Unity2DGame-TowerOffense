@@ -6,7 +6,7 @@ using ExitGames.Client.Photon;
 public class Monster : MonoBehaviour {
     
     public PlayerGameState gameState;
-    new private SpriteRenderer renderer;
+    private SpriteRenderer spriteR;
     public int serializeId;
 
     // Monster data
@@ -35,7 +35,7 @@ public class Monster : MonoBehaviour {
     public const int serialize_size = 41;
 
     void Awake() {
-        renderer = GetComponent<SpriteRenderer>();
+        spriteR = GetComponent<SpriteRenderer>();
         hp = maxHp;
     }
 
@@ -46,19 +46,19 @@ public class Monster : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         float hp_ratio = hp / (float)maxHp;
-        renderer.color = new Color(1, hp_ratio, hp_ratio);
+        spriteR.color = new Color(1, hp_ratio, hp_ratio);
 
-        if (checkEffectBit(0) && PhotonNetwork.ServerTimestamp >= stunTill) {
+        if (checkEffectBit(0) && GameManager.instance.getTime() >= stunTill) {
             setEffectBit(0, false);
             stunTill = 0;
         }
-        if (checkEffectBit(1) && PhotonNetwork.ServerTimestamp >= slowTill) {
+        if (checkEffectBit(1) && GameManager.instance.getTime() >= slowTill) {
             setEffectBit(1, false);
             slowTill = 0;
         }
 
         if (checkEffectBit(1)) {
-            renderer.color = new Color(renderer.color.r * 0.5f, renderer.color.g * 0.5f, renderer.color.b, 0.8f);
+            spriteR.color = new Color(spriteR.color.r * 0.5f, spriteR.color.g * 0.5f, spriteR.color.b, 0.8f);
         }
 
         Move();
@@ -72,9 +72,9 @@ public class Monster : MonoBehaviour {
         Vector3 destination = path[pathDestIndex].transform.position;
 
         float currSpeed = speed;
-        if (checkEffectBit(0) && PhotonNetwork.ServerTimestamp < stunTill) {
+        if (checkEffectBit(0) && GameManager.instance.getTime() < stunTill) {
             currSpeed = 0;
-        } else if (checkEffectBit(1) && PhotonNetwork.ServerTimestamp < slowTill) {
+        } else if (checkEffectBit(1) && GameManager.instance.getTime() < slowTill) {
             currSpeed = currSpeed / 2;
         }
 
@@ -105,12 +105,12 @@ public class Monster : MonoBehaviour {
 
     public void inflictStun(int msDuration) {
         setEffectBit(0, true);
-        stunTill = PhotonNetwork.ServerTimestamp + msDuration;
+        stunTill = GameManager.instance.getTime() + msDuration;
     }
 
     public void inflictSlow(int msDuration) {
         setEffectBit(1, true);
-        slowTill = PhotonNetwork.ServerTimestamp + msDuration;
+        slowTill = GameManager.instance.getTime() + msDuration;
     }
     #endregion
 

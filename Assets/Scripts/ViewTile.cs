@@ -33,6 +33,7 @@ public class ViewTile : MonoBehaviour {
         }
         this.tower = tower;
         tower.transform.SetParent(transform, false);
+        tower.coord = coord;
         state = TileData.State.TOWER;
         tileData.towerType = tower.towerId;
     }
