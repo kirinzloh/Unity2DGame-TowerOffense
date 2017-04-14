@@ -22,6 +22,13 @@ public class GameManager : Photon.PunBehaviour {
     public PlayerGameState[] gameStates;
 
     private int sceneLatch;
+    private float goldTimer;
+    public int goldAmount;
+    public float goldInterval; // in s
+
+    public int gameTimeLimit; // in ms. Preferably 300 000 (5 min)
+    public int startTime;
+    public bool timeout;
 
     public PlayerGameState getOwnGameState() {
         return gameStates[LocalIdIndex];
@@ -88,6 +95,7 @@ public class GameManager : Photon.PunBehaviour {
     }
 
     public void buildReady() {
+        goldTimer = goldInterval;
         // For testing.
         if (PhotonNetwork.connected) {
             photonView.RPC("SendMap", PhotonTargets.Others, (object)getOwnGameState().map.serializeNew(), LocalId);
@@ -108,6 +116,7 @@ public class GameManager : Photon.PunBehaviour {
 
     public void sendMonster(Monster monsterPrefab) {
         getOwnGameState().gold -= monsterPrefab.price;
+        getOwnGameState().monsterGoldSpent += monsterPrefab.price;
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("spawnMonster", PhotonTargets.Others, monsterPrefab.monsterId);
         } else {
@@ -203,6 +212,9 @@ public class GameManager : Photon.PunBehaviour {
             if (sceneLatch <= 0) {
                 PhotonNetwork.LoadLevel(scene);
                 sceneLatch = 2;
+                if (scene == 3) {
+                    startTime = getTime();
+                }
             }
         }
     }
@@ -232,9 +244,60 @@ public class GameManager : Photon.PunBehaviour {
             Debug.LogWarning(e.StackTrace);
         }
     }
+
+    [PunRPC]
+    public void increaseGold() {
+        getOwnGameState().increaseGold(goldAmount);
+    }
+
+    [PunRPC]
+    public void gameOverLose(int playerId) {
+        if (playerId != LocalId) {
+            getOwnGameState().winner = true;
+        } else {
+            getOpponentGameState().winner = true;
+        }
+        PhotonNetwork.LoadLevel(4);
+    }
+
+    [PunRPC]
+    public void gameOverTimeout() {
+        timeout = true;
+        PlayerGameState ownGS = getOwnGameState();
+        PlayerGameState opponentGS = getOpponentGameState();
+
+        if (ownGS.hp == opponentGS.hp) {
+            if (ownGS.monsterGoldSpent > opponentGS.monsterGoldSpent) {
+                ownGS.winner = true;
+            } else if (ownGS.monsterGoldSpent < opponentGS.monsterGoldSpent) {
+                opponentGS.winner = true;
+            }
+        } else if (ownGS.hp < opponentGS.hp) {
+            opponentGS.winner = true;
+        } else if (ownGS.hp > opponentGS.hp) {
+            ownGS.winner = true;
+        }
+        PhotonNetwork.LoadLevel(4);
+    }
     #endregion
 
     // Update is called once per frame
     void Update(){
+        if (SceneManager.GetActiveScene().buildIndex != 3) { return; }
+        if (PhotonNetwork.connected && !PhotonNetwork.isMasterClient) { return; }
+        if (getTime() >= (startTime + gameTimeLimit)) {
+            photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+        }
+        if (goldTimer > 0) {
+            goldTimer -= Time.deltaTime;
+        }
+        if (goldTimer <= 0) {
+            if (PhotonNetwork.connected) {
+                photonView.RPC("increaseGold", PhotonTargets.AllViaServer);
+            } else {
+                increaseGold();
+            }
+            goldTimer = goldInterval;
+        }
     }
 }

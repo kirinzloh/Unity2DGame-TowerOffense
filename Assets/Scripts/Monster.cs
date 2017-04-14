@@ -16,6 +16,7 @@ public class Monster : MonoBehaviour {
     public int damage;
     public float speed;
     public int maxHp;
+    public int reward;
 
     // Pathfinding data
     private List<ViewTile> path;
@@ -64,6 +65,7 @@ public class Monster : MonoBehaviour {
         Move();
 
         if (hp <= 0) {
+            gameState.gold += reward;
             gameState.destroyMonster(this);
         }
     }

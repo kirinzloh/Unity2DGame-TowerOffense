@@ -24,9 +24,7 @@ public class Tower : MonoBehaviour {
 
     // Data for shooting projectiles
     public Coord coord;
-    private Queue<Monster> monsters;
     private Monster target;
-    private bool canAttack;
     private float attackTimer;
 
     // Use this for initialization
@@ -34,8 +32,6 @@ public class Tower : MonoBehaviour {
         Transform child = transform.GetChild(0);
         child.localScale = new Vector3(range*2,range*2,1);
         rangeSpriteRenderer = child.GetComponent<SpriteRenderer>();
-        monsters = new Queue<Monster>();
-        canAttack = true;
     }
 
     // Update is called once per frame

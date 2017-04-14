@@ -10,14 +10,16 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public int playerId;
     public int hp;
     public int gold;
-	public bool winner = false;
     public MapData map;
     public ViewMap viewMapRef;
     public Dictionary<int, Monster> monsterRef;
     public int monsterCount;
     
     public bool sendMapData = false;
-
+    public bool gameOver = false;
+    public bool winner = false;
+    public int monsterGoldSpent;
+    
     void Awake() {
         DontDestroyOnLoad(gameObject);
         hp = 10;
@@ -44,12 +46,12 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Update is called once per frame
     void Update () {
-		if (hp <= 0) {
+        if (hp <= 0 && !gameOver) {
+            gameOver = true;
             if (PhotonNetwork.connected && photonView.isMine) { // DEBUG
-                photonView.RPC("sendLosingPlayerId", PhotonTargets.AllViaServer, playerId);
-                hp = 10; // Stopgap
+                GameManager.instance.photonView.RPC("gameOverLose", PhotonTargets.AllViaServer, playerId);
             }
-		}
+        }
     }
 
     public void takeDamage(int damage) {
@@ -61,6 +63,19 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public void destroyMonster(Monster monster) {
         monsterRef.Remove(monster.serializeId);
         Destroy(monster.gameObject);
+    }
+
+    public void increaseGold(int amount) {
+        gold += amount;
+        int extra = 0;
+        for (int i = 0; i < map.numRows; ++i) {
+            for (int j = 0; j < map.numCols; ++j) {
+                if (map.getTileData(i, j).towerType/10 == 7) { // integer division truncates. 70+ is the gold towers.
+                    extra += TowerR.getById(map.getTileData(i, j).towerType).damage;
+                }
+            }
+        }
+        gold += extra;
     }
 
     #region rpcs
@@ -92,29 +107,13 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             monsterRef[monster.serializeId] = monster;
         }
     }
-
-	[PunRPC]
-	public void sendLosingPlayerId(int playerId) {
-		if (this.playerId == playerId) {
-			this.winner = false;
-		} else {
-			this.winner = true;
-		}
-		// Load EndGame scene
-		PhotonNetwork.LoadLevel (4);
-		Text verdict = (Text)Instantiate(Resources.Load<Text>("Verdict"), new Vector3(0,0,0), Quaternion.identity);
-		if (this.winner) {
-			verdict.text = "You Win";
-		} else {
-			verdict.text = "You Lose";
-		}
-	}
     #endregion
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {
             stream.SendNext(hp);
             stream.SendNext(gold);
+            stream.SendNext(monsterGoldSpent);
             stream.SendNext(sendMapData);
             if (sendMapData) {
                 stream.SendNext(map.serializePlay());
@@ -125,6 +124,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             // first 3 values are always viewID, false, null. Ignore them if using ToArray or Count.
             this.hp = (int)stream.ReceiveNext();
             this.gold = (int)stream.ReceiveNext();
+            this.monsterGoldSpent = (int)stream.ReceiveNext();
             this.sendMapData = (bool)stream.ReceiveNext();
             if (sendMapData) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
