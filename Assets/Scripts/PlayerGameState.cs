@@ -2,12 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     public int playerId;
     public int hp;
     public int gold;
+	public bool winner = false;
     public MapData map;
     public ViewMap viewMapRef;
     public Dictionary<Coord, Tower> towerRef;
@@ -42,6 +44,9 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Update is called once per frame
     void Update () {
+		if (hp <= 0) {
+			photonView.RPC("sendLosingPlayerId", PhotonTargets.AllViaServer, playerId);
+		}
     }
 
     #region rpcs
@@ -69,6 +74,23 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             ((PlayMap)viewMapRef).spawnMonster(monsterId);
         }
     }
+
+	[PunRPC]
+	public void sendLosingPlayerId(int playerId) {
+		if (this.playerId == playerId) {
+			this.winner = false;
+		} else {
+			this.winner = true;
+		}
+		// Load EndGame scene
+		PhotonNetwork.LoadLevel (4);
+		Text verdict = (Text)Instantiate(Resources.Load<Text>("Verdict"), new Vector3(0,0,0), Quaternion.identity);
+		if (this.winner) {
+			verdict.text = "You Win";
+		} else {
+			verdict.text = "You Lose";
+		}
+	}
     #endregion
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
