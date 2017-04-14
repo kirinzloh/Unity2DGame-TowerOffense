@@ -9,7 +9,6 @@ public class MonsterPanel : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		PlayMap playMap  = Object.FindObjectOfType<PlayMap>();
 		Transform grid = transform.GetChild(0);
 		foreach (Monster monsterPrefab in MonsterR.getAllMonsters()) {
 			GameObject monsterbtn = Instantiate(MonsterButton);

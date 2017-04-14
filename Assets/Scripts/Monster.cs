@@ -18,7 +18,7 @@ public class Monster : MonoBehaviour {
     public int maxHp;
 
     // Pathfinding data
-    public List<ViewTile> path;
+    private List<ViewTile> path;
     public int pathDestIndex;
 
     //effects
@@ -31,7 +31,7 @@ public class Monster : MonoBehaviour {
     // 1 byte effects bitmask
     // 2*4 byte int slowTill, stunTill.
     // 2*4 byte serializeId and monsterId;
-    // NOTE: serializeId and monsterId are deserialized outside, in playerGameState.
+    // NOTE: serializeId and monsterId are serialized inside, but deserialized outside, in playerGameState.
     public const int serialize_size = 41;
 
     void Awake() {
@@ -90,6 +90,7 @@ public class Monster : MonoBehaviour {
         }
     }
 
+    #region public api
     public void SetPath(List<ViewTile> pathList) {
         if (pathList != null) {
             path = pathList;
@@ -111,6 +112,7 @@ public class Monster : MonoBehaviour {
         setEffectBit(1, true);
         slowTill = PhotonNetwork.ServerTimestamp + msDuration;
     }
+    #endregion
 
     void setEffectBit(int bit, bool activate) {
         if (activate) {
@@ -151,7 +153,7 @@ public class Monster : MonoBehaviour {
         ++index;
         Protocol.Deserialize(out stunTill, from, ref index);
         Protocol.Deserialize(out slowTill, from, ref index);
-        transform.position = new Vector2(x, y);
+        transform.position = new Vector2(x+50, y); // hardcode +50 to x to offset view map.
     }
     #endregion
 }

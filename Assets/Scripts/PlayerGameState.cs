@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ExitGames.Client.Photon;
 
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
@@ -41,7 +42,6 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Update is called once per frame
     void Update () {
-        serializeMonsters(); // Debug
     }
 
     public void takeDamage(int damage) {
@@ -103,14 +103,16 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             this.sendMapData = (bool)stream.ReceiveNext();
             if (sendMapData) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
+                deserializeMonsters((byte[])stream.ReceiveNext());
                 viewMapRef.refreshMap();
             }
         }
     }
 
     byte[] serializeMonsters() {
-        byte[] monsterBytes = new byte[monsterRef.Count*Monster.serialize_size];
+        byte[] monsterBytes = new byte[monsterRef.Count*Monster.serialize_size + 4];
         int index = 0;
+        Protocol.Serialize(monsterRef.Count, monsterBytes, ref index);
         foreach (KeyValuePair<int, Monster> pair in monsterRef) {
             pair.Value.serializeTo(monsterBytes, ref index);
         }
@@ -118,12 +120,49 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         // DEBUG
         string x = "";
         for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
-        UnityEngine.Debug.Log(x);
+        UnityEngine.Debug.Log(playerId + " monsterbytes out: " + x);
         // DEBUG
         return monsterBytes; // DEBUG
     }
 
     void deserializeMonsters(byte[] monsterBytes) {
-        
+        // DEBUG
+        string x = "";
+        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        UnityEngine.Debug.Log(playerId + " monsterbytes in: " + x);
+        // DEBUG
+        int index = 0;
+        int numMonsters;
+        Protocol.Deserialize(out numMonsters, monsterBytes, ref index);
+        HashSet<int> newSerializeIds = new HashSet<int>();
+        for (int i = 0; i < numMonsters; ++i) {
+            int serializeId;
+            Protocol.Deserialize(out serializeId, monsterBytes, ref index);
+            newSerializeIds.Add(serializeId);
+            int monsterId;
+            Protocol.Deserialize(out monsterId, monsterBytes, ref index);
+            Monster monster;
+            if (monsterRef.TryGetValue(serializeId, out monster)) {
+                if (monster.monsterId != monsterId) { // Destroy if wrong monster.
+                    destroyMonster(monster);
+                    monster = null;
+                }
+            }
+            if (monster == null) { // No monster or wrong (destroyed) monster
+                monster = Instantiate(MonsterR.getById(monsterId));
+                monster.gameState = this;
+                monster.SetPath(viewMapRef.getPath());
+                monster.serializeId = serializeId;
+                monsterRef[serializeId] = monster;
+            }
+            // There is now a valid monster. Update
+            monster.deserializeFrom(monsterBytes, ref index);
+        }
+        // Remove no longer existing monsters.
+        foreach (KeyValuePair<int, Monster> pair in monsterRef) {
+            if (!newSerializeIds.Contains(pair.Key)) {
+                destroyMonster(pair.Value);
+            }
+        }
     }
 }
