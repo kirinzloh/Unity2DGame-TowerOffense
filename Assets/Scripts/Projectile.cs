@@ -44,6 +44,7 @@ public class Projectile : MonoBehaviour
             if (target.gameObject == other.gameObject)
             {
                 target.TakeDamage(towerType.damage);
+                target.inflictSlow(2000); // DEBUG
             }
             Release();
         }

@@ -2,7 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+<<<<<<< HEAD
 using UnityEngine.UI;
+=======
+using ExitGames.Client.Photon;
+>>>>>>> 407f2d5c0d565d032242c00c84c732d77bcdd009
 
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
@@ -12,8 +16,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 	public bool winner = false;
     public MapData map;
     public ViewMap viewMapRef;
-    public Dictionary<Coord, Tower> towerRef;
     public Dictionary<int, Monster> monsterRef;
+    public int monsterCount;
     
     public bool sendMapData = false;
 
@@ -25,8 +29,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Use this for initialization
     void Start () {
-        gameObject.transform.parent = GameManager.instance.transform;
-        towerRef = new Dictionary<Coord, Tower>();
+        gameObject.transform.SetParent(GameManager.instance.transform);
         monsterRef = new Dictionary<int, Monster>();
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
@@ -49,6 +52,17 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 		}
     }
 
+    public void takeDamage(int damage) {
+        if (photonView == null || photonView.isMine) {
+            hp -= damage;
+        }
+    }
+
+    public void destroyMonster(Monster monster) {
+        monsterRef.Remove(monster.serializeId);
+        Destroy(monster.gameObject);
+    }
+
     #region rpcs
     [PunRPC]
     public void setPlayerId(int id) {
@@ -61,7 +75,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     [PunRPC]
     public void setSendMapData(bool sendmap) {
         Debug.Log("in setsendmap data: " + sendmap); // DEBUG
-        if (photonView.isMine) {
+        if (photonView == null || photonView.isMine) {
             Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
             sendMapData = sendmap;
         }
@@ -69,9 +83,13 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     [PunRPC]
     public void spawnMonster(int monsterId) {
-        //Should maintain a pool of monsters in the game state.
-        if (photonView.isMine) {
-            ((PlayMap)viewMapRef).spawnMonster(monsterId);
+        if (photonView==null || photonView.isMine) {
+            Monster monster = Instantiate(MonsterR.getById(monsterId));
+            // DEBUG TO IMPLEMENT Should maintain a pool of monsters in the game state.
+            monster.gameState = this;
+            monster.SetPath(viewMapRef.getPath());
+            monster.serializeId = ++monsterCount;
+            monsterRef[monster.serializeId] = monster;
         }
     }
 
@@ -100,7 +118,6 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             stream.SendNext(sendMapData);
             if (sendMapData) {
                 stream.SendNext(map.serializePlay());
-                stream.SendNext(serializeTowers());
                 stream.SendNext(serializeMonsters());
             }
         } else {
@@ -111,17 +128,66 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             this.sendMapData = (bool)stream.ReceiveNext();
             if (sendMapData) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
+                deserializeMonsters((byte[])stream.ReceiveNext());
+                viewMapRef.refreshMap();
             }
         }
     }
 
-    byte[] serializeTowers() {
-        // Not implemented yet!
-        return new byte[0]; // DEBUG
+    byte[] serializeMonsters() {
+        byte[] monsterBytes = new byte[monsterRef.Count*Monster.serialize_size + 4];
+        int index = 0;
+        Protocol.Serialize(monsterRef.Count, monsterBytes, ref index);
+        foreach (KeyValuePair<int, Monster> pair in monsterRef) {
+            pair.Value.serializeTo(monsterBytes, ref index);
+        }
+
+        // DEBUG
+        string x = "";
+        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        UnityEngine.Debug.Log(playerId + " monsterbytes out: " + x);
+        // DEBUG
+        return monsterBytes; // DEBUG
     }
 
-    byte[] serializeMonsters() {
-        // Not implemented yet!
-        return new byte[0]; // DEBUG
+    void deserializeMonsters(byte[] monsterBytes) {
+        // DEBUG
+        string x = "";
+        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        UnityEngine.Debug.Log(playerId + " monsterbytes in: " + x);
+        // DEBUG
+        int index = 0;
+        int numMonsters;
+        Protocol.Deserialize(out numMonsters, monsterBytes, ref index);
+        HashSet<int> newSerializeIds = new HashSet<int>();
+        for (int i = 0; i < numMonsters; ++i) {
+            int serializeId;
+            Protocol.Deserialize(out serializeId, monsterBytes, ref index);
+            newSerializeIds.Add(serializeId);
+            int monsterId;
+            Protocol.Deserialize(out monsterId, monsterBytes, ref index);
+            Monster monster;
+            if (monsterRef.TryGetValue(serializeId, out monster)) {
+                if (monster.monsterId != monsterId) { // Destroy if wrong monster.
+                    destroyMonster(monster);
+                    monster = null;
+                }
+            }
+            if (monster == null) { // No monster or wrong (destroyed) monster
+                monster = Instantiate(MonsterR.getById(monsterId));
+                monster.gameState = this;
+                monster.SetPath(viewMapRef.getPath());
+                monster.serializeId = serializeId;
+                monsterRef[serializeId] = monster;
+            }
+            // There is now a valid monster. Update
+            monster.deserializeFrom(monsterBytes, ref index);
+        }
+        // Remove no longer existing monsters.
+        foreach (KeyValuePair<int, Monster> pair in monsterRef) {
+            if (!newSerializeIds.Contains(pair.Key)) {
+                destroyMonster(pair.Value);
+            }
+        }
     }
 }

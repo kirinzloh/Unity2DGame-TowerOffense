@@ -82,17 +82,21 @@ public class ViewMap : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         health.text = GameState.hp.ToString();
-        if (!GameState.sendMapData) { return; }
-        Debug.Log("after check"); // DEBUG
+    }
+
+    public void refreshMap() {
         for (int i = 0; i < numRows; ++i) {
             for (int j = 0; j < numCols; ++j) {
-                int towerid = grid[i, j].tower == null ? 0 : grid[i, j].tower.towerId;
-                if (grid[i, j].tileData.towerType != towerid) { // has tower and id same, or both no tower.
-                    Tower tower = Instantiate(TowerR.getById(grid[i, j].tileData.towerType), grid[i, j].transform.position, Quaternion.identity);
+                int updated_towerid = grid[i, j].tileData.towerType;
+                int current_towerid = (grid[i, j].tower == null ? 0 : grid[i, j].tower.towerId);
+                if (updated_towerid == 0 && current_towerid != 0) { // Tower got removed.
+                    grid[i, j].removeTower();
+                } else if (updated_towerid != current_towerid) { // Tower changed.
+                    Tower tower = Instantiate(TowerR.getById(grid[i, j].tileData.towerType));
+                    tower.enabled = false;
                     grid[i, j].setTower(tower);
                 };
             }
         }
-        Debug.Log("updated"); // DEBUG
     }
 }

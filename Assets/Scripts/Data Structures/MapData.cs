@@ -132,9 +132,11 @@ public class MapData
                 getTileData(i, j).serializeTo(mapBytes, ref index);
             }
         }
+        // DEBUG
         string x = "";
-        for (int i = 0; i < size; ++i) { x += mapBytes[i]; } // DEBUG
+        for (int i = 0; i < size; ++i) { x += mapBytes[i]; }
         UnityEngine.Debug.Log(x);
+        // DEBUG
         return mapBytes;
     }
 
@@ -149,9 +151,11 @@ public class MapData
                 this.getTileData(i, j).deserializeFrom(mapBytes, ref index);
             }
         }
+        // DEBUG
         string x = "";
-        for (int i = 0; i < mapBytes.Length; ++i) { x += mapBytes[i]; } // DEBUG
+        for (int i = 0; i < mapBytes.Length; ++i) { x += mapBytes[i]; }
         UnityEngine.Debug.Log(x);
+        // DEBUG
     }
     #endregion
 }
