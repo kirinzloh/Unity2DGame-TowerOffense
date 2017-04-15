@@ -73,6 +73,7 @@ public class Projectile : MonoBehaviour
             foreach (Collider2D inrange in Physics2D.OverlapCircleAll(target.transform.position, projData.splashRadius, 1 << 2)) {
                 if (inrange.CompareTag("Monster")) {
                     Monster monster = inrange.GetComponent<Monster>();
+                    Debug.Log("pos: " + monster.transform.position + " dist: " + Vector2.Distance(monster.transform.position, transform.position)); // DEBUG
                     monster.TakeDamage(projData.damage);
                     if (projData.stunTime > 0) {
                         monster.inflictStun(projData.stunTime);
@@ -93,7 +94,7 @@ public class Projectile : MonoBehaviour
         exploding = true;
         spriteR.enabled = false;
         splashR.enabled = true;
-        splashR.transform.localScale = new Vector2(projData.splashRadius, projData.splashRadius);
+        splashR.transform.localScale = new Vector2(projData.splashRadius*2, projData.splashRadius*2);
         elapsedtime = 0;
     }
 

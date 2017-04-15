@@ -10,19 +10,60 @@ public class Tower : MonoBehaviour {
     public int towerId;
     public string towerName;
     public int price;
-    public int upgradeCost;   // set to 0 to disable upgrade.
-    public float range;       // Radius
-    public float delay;       // Number of sec per attack
+    public int upgradeCost;    // set to 0 to disable upgrade.
+    public float _range;       // Radius
+    public float _delay;       // Number of sec per attack
+    public bool isSupport;     // flag if the tower is a support tower. Suport towers don't attack.
+    public float supportMultiplier; // Multiplier for aura support towers.
     // Projectile stats
     public float projectileSpeed; // GameUnits/second
-    public int damage;
+    public int _damage;
     public int stunTime;         // in ms
     public int slowTime;         // in ms
     public int DOTdamage;        // DOT total damage to apply.
     public int DOTduration;      // in ms
     public float splashRadius;
     public Sprite projectileSprite;
-    // To check
+
+    // Support aura tower effects are hardcoded and static.
+    public int damage {
+        get {
+            if (isSupport) { return _damage; }
+            float d = _damage;
+            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(50).range, 1 << 2)) {
+                if (inaura.CompareTag("AttackAura")) {
+                    d *= TowerR.getById(50).supportMultiplier;
+                }
+            }
+            return (int)System.Math.Round(d, System.MidpointRounding.AwayFromZero);
+        }
+    }
+
+    public float delay {
+        get {
+            if (isSupport) { return _delay; }
+            float de = _delay;
+            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(60).range, 1 << 2)) {
+                if (inaura.CompareTag("SpeedAura")) {
+                    de /= TowerR.getById(60).supportMultiplier;
+                }
+            }
+            return de;
+        }
+    }
+
+    public float range {
+        get {
+            if (isSupport) { return _range; }
+            float r = _range;
+            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(70).range, 1 << 2)) {
+                if (inaura.CompareTag("RangeAura")) {
+                    r *= TowerR.getById(70).supportMultiplier;
+                }
+            }
+            return r;
+        }
+    }
 
     // Data for shooting projectiles
     public Coord coord;
@@ -32,12 +73,12 @@ public class Tower : MonoBehaviour {
     // Use this for initialization
     void Start () {
         Transform child = transform.GetChild(0);
-        child.localScale = new Vector3(range*2,range*2,1);
         rangeSpriteRenderer = child.GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
     void Update() {
+        if (isSupport) { return; }
         List<Monster> potentialTargets = new List<Monster>();
 
         foreach (Collider2D inrange in Physics2D.OverlapCircleAll(transform.position, range, 1 << 2)) {
@@ -85,6 +126,7 @@ public class Tower : MonoBehaviour {
 
     public void ShowRange() {
         if (rangeSpriteRenderer != null) {
+            rangeSpriteRenderer.transform.localScale = new Vector3(range * 2, range * 2, 1);
             rangeSpriteRenderer.enabled = true;
         }
     }

@@ -32,6 +32,8 @@ public class PlayMap : ViewMap {
                 tile.highlight();
                 break;
             case TileData.State.EMPTY:
+                HideUpgradePanel();
+                HideTowerInfo();
                 selectedTile = tile;
                 tile.highlight();
                 break;
@@ -43,10 +45,10 @@ public class PlayMap : ViewMap {
     // Called when tower button is clicked
     public void onTowerBtnClick(Tower towerPrefab) {
         if (selectedTile == null || selectedTile.state == TileData.State.TOWER) {
-            DisplayTowerInfo(towerPrefab);
             if (selectedTile != null) {
                 DeselectTile();
             }
+            DisplayTowerInfo(towerPrefab);
         } else {
             // Try to build tower
             if (towerPrefab.price > GameState.gold) { return; }
@@ -78,14 +80,38 @@ public class PlayMap : ViewMap {
     {
         upgradePanel.SetActive(false);
     }
-    
+
     // To toggle display of tower info when a towerBtn/tower is clicked
-    public void DisplayTowerInfo(Tower tower)
-    {
+    public void DisplayTowerInfo(Tower tower) {
         this.towerName.text = tower.towerName;
-        towerStats.text = "DAMAGE: " + tower.damage + "\n" +
-                          "RANGE: " + tower.range + "\n" +
-                          "ATK SPEED: " + (1 / tower.delay);
+        List<string> info = new List<string>();
+        if (tower.towerId / 10 == 8) { // gold towers
+            info.Add(string.Format("EXTRA GOLD: {0}gold / {1}s", tower.damage, GameManager.instance.goldInterval));
+        } else if (tower.isSupport) {
+            info.Add(string.Format("MULTIPLIER: {0}", tower.supportMultiplier));
+            info.Add(string.Format("RANGE: {0:f2}", tower.range));
+        } else {
+            info.Add(string.Format("DAMAGE: {0}", tower.damage));
+            info.Add(string.Format("RANGE: {0:f2}", tower.range));
+        }
+        
+        if (!tower.isSupport) {
+            info.Add(string.Format("ATK SPEED: {0:f2}", (1 / tower.delay)));
+        }
+        if (tower.stunTime > 0) {
+            info.Add(string.Format("STUN EFFECT: {0:f2}s", (tower.stunTime / 1000f)) );
+        }
+        if (tower.slowTime > 0) {
+            info.Add(string.Format("SLOW EFFECT: {0:f2}s", (tower.slowTime / 1000f)));
+        }
+        if (tower.DOTdamage > 0) {
+            info.Add("DOT DAMAGE: ");
+            info.Add( string.Format("{0}dmg / {1}s", tower.DOTdamage, (tower.DOTduration / 1000f)) );
+        }
+        if (tower.splashRadius > 0) {
+            info.Add(string.Format("SPLASH: {0:f2}", tower.splashRadius));
+        }
+        towerStats.text = string.Join("\n", info.ToArray());
         towerInfo.SetActive(true);
     }
     public void HideTowerInfo()

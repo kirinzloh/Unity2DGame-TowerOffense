@@ -66,7 +66,6 @@ public class Monster : MonoBehaviour {
                 effectiveHp -= (int)Mathf.Lerp(0, DOTdamage, DOTprogress);
             }
         }
-        Debug.Log("Monster " + serializeId + " eff HP: " + effectiveHp);
         
         float hp_ratio = effectiveHp / (float)maxHp;
         spriteR.color = new Color(1, hp_ratio, hp_ratio);

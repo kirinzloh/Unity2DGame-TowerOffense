@@ -18,7 +18,8 @@ public static class TowerR {
         IdMap.Add(40, Resources.Load<Tower>("Towers/Level 1 Towers/TeslaTower"));
         IdMap.Add(50, Resources.Load<Tower>("Towers/Level 1 Towers/AttackAuraTower"));
         IdMap.Add(60, Resources.Load<Tower>("Towers/Level 1 Towers/SpeedAuraTower"));
-        IdMap.Add(70, Resources.Load<Tower>("Towers/Level 1 Towers/GoldTower"));
+        IdMap.Add(70, Resources.Load<Tower>("Towers/Level 1 Towers/RangeAuraTower"));
+        IdMap.Add(80, Resources.Load<Tower>("Towers/Level 1 Towers/GoldTower"));
 
         // Level 2 Towers
         IdMap.Add(11, Resources.Load<Tower>("Towers/Level 2 Towers/BasicTower2"));
