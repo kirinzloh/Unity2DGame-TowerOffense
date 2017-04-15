@@ -18,6 +18,8 @@ public class Tower : MonoBehaviour {
     public int damage;
     public int stunTime;         // in ms
     public int slowTime;         // in ms
+    public int DOTdamage;        // DOT total damage to apply.
+    public int DOTduration;      // in ms
     public float splashRadius;
     public Sprite projectileSprite;
     // To check
@@ -75,6 +77,8 @@ public class Tower : MonoBehaviour {
         projData.damage = damage;
         projData.stunTime = stunTime;
         projData.slowTime = slowTime;
+        projData.DOTdamage = DOTdamage;
+        projData.DOTduration = DOTduration;
         projData.splashRadius = splashRadius;
         GameManager.instance.shootProjectile(projData);
     }

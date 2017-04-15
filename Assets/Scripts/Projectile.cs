@@ -65,6 +65,9 @@ public class Projectile : MonoBehaviour
             if (projData.slowTime > 0) {
                 target.inflictSlow(projData.slowTime);
             }
+            if (projData.DOTdamage > 0) {
+                target.inflictDOT(projData.DOTdamage, projData.DOTduration);
+            }
             Release();
         } else {
             foreach (Collider2D inrange in Physics2D.OverlapCircleAll(target.transform.position, projData.splashRadius, 1 << 2)) {
@@ -76,6 +79,9 @@ public class Projectile : MonoBehaviour
                     }
                     if (projData.slowTime > 0) {
                         monster.inflictSlow(projData.slowTime);
+                    }
+                    if (projData.DOTdamage > 0) {
+                        target.inflictDOT(projData.DOTdamage, projData.DOTduration);
                     }
                 }
             }
