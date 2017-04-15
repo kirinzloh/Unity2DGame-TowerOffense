@@ -286,7 +286,11 @@ public class GameManager : Photon.PunBehaviour {
         if (SceneManager.GetActiveScene().buildIndex != 3) { return; }
         if (PhotonNetwork.connected && !PhotonNetwork.isMasterClient) { return; }
         if (getTime() >= (startTime + gameTimeLimit)) {
-            photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+            if (PhotonNetwork.connected) {
+                photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+            } else {
+                gameOverTimeout();
+            }
         }
         if (goldTimer > 0) {
             goldTimer -= Time.deltaTime;
