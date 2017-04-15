@@ -39,7 +39,6 @@ public class Projectile : MonoBehaviour
             if (elapsedtime >= explodetime) {
                 Release();
             }
-            Debug.Log("exploding " + elapsedtime);
             return;
         }
 
