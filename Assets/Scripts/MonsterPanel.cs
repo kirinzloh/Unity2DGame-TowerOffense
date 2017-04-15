@@ -9,6 +9,7 @@ public class MonsterPanel : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		PlayMap playMap = Object.FindObjectOfType<PlayMap>();
 		Transform grid = transform.GetChild(0);
 		foreach (Monster monsterPrefab in MonsterR.getAllMonsters()) {
 			GameObject monsterbtn = Instantiate(MonsterButton);
@@ -17,7 +18,7 @@ public class MonsterPanel : MonoBehaviour {
 			monsterbtn.transform.localScale = new Vector3(1,1,1);
 			monsterbtn.GetComponent<Image>().sprite = monsterPrefab.GetComponent<SpriteRenderer>().sprite;
 			monsterbtn.GetComponent<Image>().color = monsterPrefab.GetComponent<SpriteRenderer>().color;
-			monsterbtn.GetComponent<Button>().onClick.AddListener(delegate { GameManager.instance.sendMonster(monsterPrefab); });
+			monsterbtn.GetComponent<Button>().onClick.AddListener(delegate { playMap.onMonsterBtnClick(monsterPrefab); });
 			monsterbtn.transform.GetChild(0).GetComponent<Text>().text = "$" + monsterPrefab.price;
 		}
 	}

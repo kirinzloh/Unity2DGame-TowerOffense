@@ -10,14 +10,18 @@ public class PlayMap : ViewMap {
 
     // UI stuff
     public Text gold;
-    public Text towerName;
-    public Text towerStats;
+    
+    public GameObject displayInfo;
+    public Text displayName;
+    public Text displayStats;
+
     public GameObject upgradePanel;
-    public GameObject towerInfo;
     public Button upgradeTowerBtn;
     public Text upgradeCost;
     public Button sellTowerBtn;
     public Text sellPrice;
+
+    public Button sendMonsterBtn;
 
     // Tile click selects tiles. Click again to unselect.
     public void onTileClick(PlayTile tile) {
@@ -26,14 +30,14 @@ public class PlayMap : ViewMap {
         if (tile.Equals(prev)) { return; }
         switch (tile.state) {
             case TileData.State.TOWER:
+                HideSendMonsterBtn();
                 DisplayTowerInfo(tile.tower);
                 DisplayUpgradePanel(tile.tower);
                 selectedTile = tile;
                 tile.highlight();
                 break;
             case TileData.State.EMPTY:
-                HideUpgradePanel();
-                HideTowerInfo();
+                HidePanels();
                 selectedTile = tile;
                 tile.highlight();
                 break;
@@ -48,6 +52,7 @@ public class PlayMap : ViewMap {
             if (selectedTile != null) {
                 DeselectTile();
             }
+            HideSendMonsterBtn();
             DisplayTowerInfo(towerPrefab);
         } else {
             // Try to build tower
@@ -60,10 +65,16 @@ public class PlayMap : ViewMap {
         }
     }
 
+    // Called when monster button is clicked
+    public void onMonsterBtnClick(Monster monsterPrefab) {
+        HideUpgradePanel();
+        DisplayMonsterInfo(monsterPrefab);
+        DisplaySendMonsterBtn(monsterPrefab);
+    }
+
     // To toggle display of upgrade panel when a tower is clicked
     public void DisplayUpgradePanel(Tower tower)
     {
-        // INCOMPLETE
         if (tower.upgradeCost > 0) {
             upgradeCost.text = "$" + tower.upgradeCost;
             upgradeTowerBtn.interactable = true;
@@ -83,7 +94,7 @@ public class PlayMap : ViewMap {
 
     // To toggle display of tower info when a towerBtn/tower is clicked
     public void DisplayTowerInfo(Tower tower) {
-        this.towerName.text = tower.towerName;
+        this.displayName.text = tower.towerName;
         List<string> info = new List<string>();
         if (tower.towerId / 10 == 8) { // gold towers
             info.Add(string.Format("EXTRA GOLD: {0}gold / {1}s", tower.damage, GameManager.instance.goldInterval));
@@ -111,20 +122,47 @@ public class PlayMap : ViewMap {
         if (tower.splashRadius > 0) {
             info.Add(string.Format("SPLASH: {0:f2}", tower.splashRadius));
         }
-        towerStats.text = string.Join("\n", info.ToArray());
-        towerInfo.SetActive(true);
+        displayStats.text = string.Join("\n", info.ToArray());
+        displayInfo.SetActive(true);
     }
-    public void HideTowerInfo()
-    {
-        towerInfo.SetActive(false);
+    public void DisplayMonsterInfo(Monster monster) {
+        this.displayName.text = "Monster " + monster.monsterId;
+        List<string> info = new List<string>();
+        info.Add(string.Format("Price: {0}", monster.price));
+        info.Add(string.Format("HP: {0}", monster.maxHp));
+        info.Add(string.Format("Damage: {0}", monster.damage));
+        info.Add(string.Format("Speed: {0}", monster.speed));
+        info.Add(string.Format("Reward: {0}", monster.reward));
+        displayStats.text = string.Join("\n", info.ToArray());
+        displayInfo.SetActive(true);
+    }
+    public void HideInfo() {
+        displayInfo.SetActive(false);
+    }
+
+    // Toggle Display of the send monster button
+    public void DisplaySendMonsterBtn(Monster monsterPrefab) {
+        sendMonsterBtn.onClick.AddListener(delegate { GameManager.instance.sendMonster(monsterPrefab); });
+        sendMonsterBtn.gameObject.SetActive(true);
+    }
+
+    public void HideSendMonsterBtn() {
+        sendMonsterBtn.onClick.RemoveAllListeners();
+        sendMonsterBtn.gameObject.SetActive(false);
+    }
+
+    // Convenience function to hide panels
+    public void HidePanels() {
+        HideInfo();
+        HideUpgradePanel();
+        HideSendMonsterBtn();
     }
 
     public void DeselectTile() {
         if (selectedTile == null) { return; }
         selectedTile.unhighlight();
         selectedTile = null;
-        HideUpgradePanel();
-        HideTowerInfo();
+        HidePanels();
     }
 
     // Upgrade towers
