@@ -96,7 +96,7 @@ public class PlayMap : ViewMap {
     public void DisplayTowerInfo(Tower tower) {
         this.displayName.text = tower.towerName;
         List<string> info = new List<string>();
-        if (tower.towerId / 10 == 8) { // gold towers
+        if (tower.towerId / 10 == 9) { // 90+ is gold towers
             info.Add(string.Format("EXTRA GOLD: {0}gold / {1}s", tower.damage, GameManager.instance.goldInterval));
         } else if (tower.isSupport) {
             info.Add(string.Format("MULTIPLIER: {0}", tower.supportMultiplier));
@@ -142,6 +142,7 @@ public class PlayMap : ViewMap {
 
     // Toggle Display of the send monster button
     public void DisplaySendMonsterBtn(Monster monsterPrefab) {
+        sendMonsterBtn.onClick.RemoveAllListeners();
         sendMonsterBtn.onClick.AddListener(delegate { GameManager.instance.sendMonster(monsterPrefab); });
         sendMonsterBtn.gameObject.SetActive(true);
     }

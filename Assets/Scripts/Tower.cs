@@ -30,9 +30,9 @@ public class Tower : MonoBehaviour {
         get {
             if (isSupport) { return _damage; }
             float d = _damage;
-            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(50).range, 1 << 2)) {
+            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(60).range, 1 << 2)) {
                 if (inaura.CompareTag("AttackAura")) {
-                    d *= TowerR.getById(50).supportMultiplier;
+                    d *= TowerR.getById(60).supportMultiplier;
                 }
             }
             return (int)System.Math.Round(d, System.MidpointRounding.AwayFromZero);
@@ -43,9 +43,9 @@ public class Tower : MonoBehaviour {
         get {
             if (isSupport) { return _delay; }
             float de = _delay;
-            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(60).range, 1 << 2)) {
+            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(70).range, 1 << 2)) {
                 if (inaura.CompareTag("SpeedAura")) {
-                    de /= TowerR.getById(60).supportMultiplier;
+                    de /= TowerR.getById(70).supportMultiplier;
                 }
             }
             return de;
@@ -56,9 +56,9 @@ public class Tower : MonoBehaviour {
         get {
             if (isSupport) { return _range; }
             float r = _range;
-            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(70).range, 1 << 2)) {
+            foreach (Collider2D inaura in Physics2D.OverlapCircleAll(transform.position, TowerR.getById(80).range, 1 << 2)) {
                 if (inaura.CompareTag("RangeAura")) {
-                    r *= TowerR.getById(70).supportMultiplier;
+                    r *= TowerR.getById(80).supportMultiplier;
                 }
             }
             return r;
@@ -112,7 +112,7 @@ public class Tower : MonoBehaviour {
         projData.startCoord = coord;
         float distance = Vector2.Distance(this.transform.position, target.transform.position);
         int msTime = (int) (1000 * distance / projectileSpeed);
-        Debug.Log("tower" + towerId + " | distance: " + distance + " | time: " + msTime); // DEBUG
+        //Debug.Log("tower" + towerId + " | distance: " + distance + " | time: " + msTime); // DEBUG
         projData.startTime = GameManager.instance.getTime();
         projData.hitTime = projData.startTime + msTime;
         projData.damage = damage;

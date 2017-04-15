@@ -70,7 +70,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         int extra = 0;
         for (int i = 0; i < map.numRows; ++i) {
             for (int j = 0; j < map.numCols; ++j) {
-                if (map.getTileData(i, j).towerType/10 == 8) { // integer division truncates. 80+ is the gold towers.
+                if (map.getTileData(i, j).towerType/10 == 9) { // integer division truncates. 90+ is the gold towers.
                     extra += TowerR.getById(map.getTileData(i, j).towerType).damage;
                 }
             }

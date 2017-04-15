@@ -14,24 +14,27 @@ public static class TowerR {
         // Level 1 Towers
         IdMap.Add(10, Resources.Load<Tower>("Towers/Level 1 Towers/BasicTower"));
         IdMap.Add(20, Resources.Load<Tower>("Towers/Level 1 Towers/FrozeTower"));
-        IdMap.Add(30, Resources.Load<Tower>("Towers/Level 1 Towers/PoisonTower"));
-        IdMap.Add(40, Resources.Load<Tower>("Towers/Level 1 Towers/TeslaTower"));
-        IdMap.Add(50, Resources.Load<Tower>("Towers/Level 1 Towers/AttackAuraTower"));
-        IdMap.Add(60, Resources.Load<Tower>("Towers/Level 1 Towers/SpeedAuraTower"));
-        IdMap.Add(70, Resources.Load<Tower>("Towers/Level 1 Towers/RangeAuraTower"));
-        IdMap.Add(80, Resources.Load<Tower>("Towers/Level 1 Towers/GoldTower"));
+        IdMap.Add(30, Resources.Load<Tower>("Towers/Level 1 Towers/BombTower"));
+        IdMap.Add(40, Resources.Load<Tower>("Towers/Level 1 Towers/PoisonTower"));
+        IdMap.Add(50, Resources.Load<Tower>("Towers/Level 1 Towers/TeslaTower"));
+        IdMap.Add(60, Resources.Load<Tower>("Towers/Level 1 Towers/AttackAuraTower"));
+        IdMap.Add(70, Resources.Load<Tower>("Towers/Level 1 Towers/SpeedAuraTower"));
+        IdMap.Add(80, Resources.Load<Tower>("Towers/Level 1 Towers/RangeAuraTower"));
+        IdMap.Add(90, Resources.Load<Tower>("Towers/Level 1 Towers/GoldTower"));
 
         // Level 2 Towers
         IdMap.Add(11, Resources.Load<Tower>("Towers/Level 2 Towers/BasicTower2"));
         IdMap.Add(21, Resources.Load<Tower>("Towers/Level 2 Towers/FrozeTower2"));
-        IdMap.Add(31, Resources.Load<Tower>("Towers/Level 2 Towers/PoisonTower2"));
-        IdMap.Add(41, Resources.Load<Tower>("Towers/Level 2 Towers/TeslaTower2"));
+        IdMap.Add(31, Resources.Load<Tower>("Towers/Level 2 Towers/BombTower2"));
+        IdMap.Add(41, Resources.Load<Tower>("Towers/Level 2 Towers/PoisonTower2"));
+        IdMap.Add(51, Resources.Load<Tower>("Towers/Level 2 Towers/TeslaTower2"));
 
         // Level 3 Towers
         IdMap.Add(12, Resources.Load<Tower>("Towers/Level 3 Towers/BasicTower3"));
         IdMap.Add(22, Resources.Load<Tower>("Towers/Level 3 Towers/FrozeTower3"));
-        IdMap.Add(32, Resources.Load<Tower>("Towers/Level 3 Towers/PoisonTower3"));
-        IdMap.Add(42, Resources.Load<Tower>("Towers/Level 3 Towers/TeslaTower3"));
+        IdMap.Add(32, Resources.Load<Tower>("Towers/Level 3 Towers/BombTower3"));
+        IdMap.Add(42, Resources.Load<Tower>("Towers/Level 3 Towers/PoisonTower3"));
+        IdMap.Add(52, Resources.Load<Tower>("Towers/Level 3 Towers/TeslaTower3"));
 
         foreach (KeyValuePair<int, Tower> pair in IdMap) {
             pair.Value.towerId = pair.Key;
