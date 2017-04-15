@@ -21,6 +21,6 @@ public class Timer : MonoBehaviour {
         if (timeleft < 0) {
             timeleft = 0;
         }
-        display.text = timeleft/60000 + ":" + (timeleft/1000)%60;
+        display.text = string.Format("{0}:{1:d2}", timeleft/60000, (timeleft/1000)%60);
     }
 }

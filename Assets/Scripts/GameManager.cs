@@ -26,7 +26,7 @@ public class GameManager : Photon.PunBehaviour {
     public int goldAmount;
     public float goldInterval; // in s
 
-    public int gameTimeLimit; // in ms. Preferably 300 000 (5 min)
+    public int gameTimeLimit; // in ms. Preferably 600 000 (10 min)
     public int startTime;
     public bool timeout;
 
