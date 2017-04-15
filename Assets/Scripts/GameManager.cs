@@ -61,9 +61,9 @@ public class GameManager : Photon.PunBehaviour {
         // Don't auto sync scenes. Ignore-->Makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
         PhotonNetwork.automaticallySyncScene = false;
         
-        // Reduce sendrate.
-        PhotonNetwork.sendRate = 10; // Default 20
-        PhotonNetwork.sendRateOnSerialize = 5; // Default 10
+        // Reduce sendrate. // Not reduced anymore
+        //PhotonNetwork.sendRate = 10; // Default 20
+        //PhotonNetwork.sendRateOnSerialize = 5; // Default 10
 
         PhotonNetwork.logLevel = Loglevel;
 
@@ -254,8 +254,10 @@ public class GameManager : Photon.PunBehaviour {
     public void gameOverLose(int playerId) {
         if (playerId != LocalId) {
             getOwnGameState().winner = true;
+            getOpponentGameState().hp = 0; // Enforce hp = 0 if not yet updated
         } else {
             getOpponentGameState().winner = true;
+            getOwnGameState().hp = 0;
         }
         PhotonNetwork.LoadLevel(4);
     }
@@ -286,7 +288,11 @@ public class GameManager : Photon.PunBehaviour {
         if (SceneManager.GetActiveScene().buildIndex != 3) { return; }
         if (PhotonNetwork.connected && !PhotonNetwork.isMasterClient) { return; }
         if (getTime() >= (startTime + gameTimeLimit)) {
-            photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+            if (PhotonNetwork.connected) {
+                photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+            } else {
+                gameOverTimeout();
+            }
         }
         if (goldTimer > 0) {
             goldTimer -= Time.deltaTime;
