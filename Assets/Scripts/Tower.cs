@@ -11,17 +11,20 @@ public class Tower : MonoBehaviour {
     public string towerName;
     public int price;
     public int upgradeCost;   // set to 0 to disable upgrade.
-    public int damage;
     public float range;       // Radius
     public float delay;       // Number of sec per attack
-    public string attackType; // ??? Included temporarily first. May not be used.
-    public float projectileSpeed;
-    public string projectileType;
+    // Projectile stats
+    public float projectileSpeed; // GameUnits/second
+    public int damage;
+    public int stunTime;         // in ms
+    public int slowTime;         // in ms
+    public float splashRadius;
+    public Sprite projectileSprite;
+    // To check
 
     // Data for shooting projectiles
-    private Queue<Monster> monsters;
+    public Coord coord;
     private Monster target;
-    private bool canAttack;
     private float attackTimer;
 
     // Use this for initialization
@@ -29,54 +32,51 @@ public class Tower : MonoBehaviour {
         Transform child = transform.GetChild(0);
         child.localScale = new Vector3(range*2,range*2,1);
         rangeSpriteRenderer = child.GetComponent<SpriteRenderer>();
-        GetComponent<CircleCollider2D>().radius = range;
-        monsters = new Queue<Monster>();
-        canAttack = true;
     }
 
     // Update is called once per frame
     void Update() {
-        Attack();
-    }
+        List<Monster> potentialTargets = new List<Monster>();
 
-    private void Attack() {
-        if (!canAttack) {
-            attackTimer += Time.deltaTime;
-            if (attackTimer >= delay) {
-                canAttack = true;
-                attackTimer = 0;
+        foreach (Collider2D inrange in Physics2D.OverlapCircleAll(transform.position, range, 1 << 2)) {
+            if (inrange.CompareTag("Monster")) {
+                potentialTargets.Add(inrange.GetComponent<Monster>());
             }
         }
-        if (target == null && monsters.Count > 0)
-        {
-            target = monsters.Dequeue();
+
+        if (!potentialTargets.Contains(target)) {
+            target = null;
         }
-        if (target != null)
-        {
-            if (canAttack == true)
-            {
-                Shoot();
-                canAttack = false;
+        foreach (Monster monster in potentialTargets) {
+            if (target == null || monster.pathDestIndex > target.pathDestIndex) {
+                target = monster;
             }
+        }
+
+        if (attackTimer > 0) {
+            attackTimer -= Time.deltaTime;
+        }
+        if (attackTimer <= 0 && target != null) {
+            Shoot();
+            attackTimer = delay;
         }
     }
 
     private void Shoot() {
-        Projectile projectile = Object.FindObjectOfType<PlayMap>().projectilePool.GetProjectile(projectileType).GetComponent<Projectile>();
-        projectile.transform.position = transform.position;
-        projectile.Initialize(this);
-    }
-
-    public void OnTriggerEnter2D(Collider2D other) {
-        if (other.tag == "Monster") {
-            monsters.Enqueue(other.GetComponent<Monster>());
-        }
-    }
-
-    public void OnTriggerExit2D(Collider2D other) {
-        if (other.tag == "Monster") {
-            target = null;
-        }
+        ProjectileData projData = new ProjectileData();
+        projData.targetSerializeId = target.serializeId;
+        projData.towerId = towerId;
+        projData.startCoord = coord;
+        float distance = Vector2.Distance(this.transform.position, target.transform.position);
+        int msTime = (int) (1000 * distance / projectileSpeed);
+        Debug.Log("tower" + towerId + " | distance: " + distance + " | time: " + msTime); // DEBUG
+        projData.startTime = GameManager.instance.getTime();
+        projData.hitTime = projData.startTime + msTime;
+        projData.damage = damage;
+        projData.stunTime = stunTime;
+        projData.slowTime = slowTime;
+        projData.splashRadius = splashRadius;
+        GameManager.instance.shootProjectile(projData);
     }
 
     public void ShowRange() {
@@ -90,9 +90,4 @@ public class Tower : MonoBehaviour {
             rangeSpriteRenderer.enabled = false;
         }
     }
-
-    public Monster GetTarget {
-        get { return target; }
-    }
-
 }

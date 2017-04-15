@@ -2,39 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProjectilePool : MonoBehaviour {
-
-    public GameObject[] projectilePrefabs;
-
-    private List<GameObject> pooledProjectiles = new List<GameObject>();
-
-    public GameObject GetProjectile(string type)
+public class ProjectilePool {
+    
+    private static readonly Projectile ProjPrefab = Resources.Load<Projectile>("Projectile");
+    private List<Projectile> pooledProjectiles = new List<Projectile>();
+    
+    public Projectile GetProjectile()
     {
-        foreach (GameObject projectile in pooledProjectiles)
+        foreach (Projectile projectile in pooledProjectiles)
         {
-            if (projectile.name == type && !projectile.activeInHierarchy)
+            if (!projectile.gameObject.activeInHierarchy)
             {
-                projectile.SetActive(true);
+                projectile.gameObject.SetActive(true);
                 return projectile;
             }
         }
-
-        for (int i =0; i < projectilePrefabs.Length; i++)
-        {
-            if (projectilePrefabs[i].name == type)
-            {
-                GameObject projectile = Instantiate(projectilePrefabs[i]);
-                pooledProjectiles.Add(projectile);
-                projectile.name = type;
-                return projectile;
-            }
-        }
-        return null;
+        Projectile newProjectile = Object.Instantiate(ProjPrefab);
+        pooledProjectiles.Add(newProjectile);
+        return newProjectile;
     }
 
-    public void ReleaseProjectile(GameObject projectile)
+    public void ReleaseProjectile(Projectile projectile)
     {
-        projectile.SetActive(false);
+        projectile.target = null;
+        projectile.projData = null;
+        projectile.gameObject.SetActive(false);
     }
 
 }

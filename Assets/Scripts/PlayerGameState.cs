@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using ExitGames.Client.Photon;
 
 public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
@@ -11,9 +13,13 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public MapData map;
     public ViewMap viewMapRef;
     public Dictionary<int, Monster> monsterRef;
+    public int monsterCount;
     
     public bool sendMapData = false;
-
+    public bool gameOver = false;
+    public bool winner = false;
+    public int monsterGoldSpent;
+    
     void Awake() {
         DontDestroyOnLoad(gameObject);
         hp = 10;
@@ -40,6 +46,36 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     // Update is called once per frame
     void Update () {
+        if (hp <= 0 && !gameOver) {
+            gameOver = true;
+            if (PhotonNetwork.connected && photonView.isMine) { // DEBUG
+                GameManager.instance.photonView.RPC("gameOverLose", PhotonTargets.AllViaServer, playerId);
+            }
+        }
+    }
+
+    public void takeDamage(int damage) {
+        if (photonView == null || photonView.isMine) {
+            hp -= damage;
+        }
+    }
+
+    public void destroyMonster(Monster monster) {
+        monsterRef.Remove(monster.serializeId);
+        Destroy(monster.gameObject);
+    }
+
+    public void increaseGold(int amount) {
+        gold += amount;
+        int extra = 0;
+        for (int i = 0; i < map.numRows; ++i) {
+            for (int j = 0; j < map.numCols; ++j) {
+                if (map.getTileData(i, j).towerType/10 == 7) { // integer division truncates. 70+ is the gold towers.
+                    extra += TowerR.getById(map.getTileData(i, j).towerType).damage;
+                }
+            }
+        }
+        gold += extra;
     }
 
     #region rpcs
@@ -65,7 +101,10 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         if (photonView==null || photonView.isMine) {
             Monster monster = Instantiate(MonsterR.getById(monsterId));
             // DEBUG TO IMPLEMENT Should maintain a pool of monsters in the game state.
-            ((PlayMap)viewMapRef).spawnMonster(monster);
+            monster.gameState = this;
+            monster.SetPath(viewMapRef.getPath());
+            monster.serializeId = ++monsterCount;
+            monsterRef[monster.serializeId] = monster;
         }
     }
     #endregion
@@ -74,10 +113,10 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         if (stream.isWriting) {
             stream.SendNext(hp);
             stream.SendNext(gold);
+            stream.SendNext(monsterGoldSpent);
             stream.SendNext(sendMapData);
             if (sendMapData) {
                 stream.SendNext(map.serializePlay());
-                stream.SendNext(serializeTowers());
                 stream.SendNext(serializeMonsters());
             }
         } else {
@@ -85,21 +124,74 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             // first 3 values are always viewID, false, null. Ignore them if using ToArray or Count.
             this.hp = (int)stream.ReceiveNext();
             this.gold = (int)stream.ReceiveNext();
+            this.monsterGoldSpent = (int)stream.ReceiveNext();
             this.sendMapData = (bool)stream.ReceiveNext();
             if (sendMapData) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
+                deserializeMonsters((byte[])stream.ReceiveNext());
                 viewMapRef.refreshMap();
             }
         }
     }
 
-    byte[] serializeTowers() {
-        // Not implemented yet!
-        return new byte[0]; // DEBUG
+    byte[] serializeMonsters() {
+        byte[] monsterBytes = new byte[monsterRef.Count*Monster.serialize_size + 4];
+        int index = 0;
+        Protocol.Serialize(monsterRef.Count, monsterBytes, ref index);
+        foreach (KeyValuePair<int, Monster> pair in monsterRef) {
+            pair.Value.serializeTo(monsterBytes, ref index);
+        }
+
+        // DEBUG
+        string x = "";
+        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        UnityEngine.Debug.Log(playerId + " monsterbytes out: " + x);
+        // DEBUG
+        return monsterBytes; // DEBUG
     }
 
-    byte[] serializeMonsters() {
-        // Not implemented yet!
-        return new byte[0]; // DEBUG
+    void deserializeMonsters(byte[] monsterBytes) {
+        // DEBUG
+        string x = "";
+        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        UnityEngine.Debug.Log(playerId + " monsterbytes in: " + x);
+        // DEBUG
+        int index = 0;
+        int numMonsters;
+        Protocol.Deserialize(out numMonsters, monsterBytes, ref index);
+        HashSet<int> newSerializeIds = new HashSet<int>();
+        for (int i = 0; i < numMonsters; ++i) {
+            int serializeId;
+            Protocol.Deserialize(out serializeId, monsterBytes, ref index);
+            newSerializeIds.Add(serializeId);
+            int monsterId;
+            Protocol.Deserialize(out monsterId, monsterBytes, ref index);
+            Monster monster;
+            if (monsterRef.TryGetValue(serializeId, out monster)) {
+                if (monster.monsterId != monsterId) { // Destroy if wrong monster.
+                    destroyMonster(monster);
+                    monster = null;
+                }
+            }
+            if (monster == null) { // No monster or wrong (destroyed) monster
+                monster = Instantiate(MonsterR.getById(monsterId));
+                monster.gameState = this;
+                monster.SetPath(viewMapRef.getPath());
+                monster.serializeId = serializeId;
+                monsterRef[serializeId] = monster;
+            }
+            // There is now a valid monster. Update
+            monster.deserializeFrom(monsterBytes, ref index);
+        }
+        // Remove no longer existing monsters.
+        List<Monster> toDestroy = new List<Monster>();
+        foreach (KeyValuePair<int, Monster> pair in monsterRef) {
+            if (!newSerializeIds.Contains(pair.Key)) {
+                toDestroy.Add(pair.Value);
+            }
+        }
+        foreach (Monster m in toDestroy) {
+            destroyMonster(m);
+        }
     }
 }

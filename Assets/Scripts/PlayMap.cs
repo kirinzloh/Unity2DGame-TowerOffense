@@ -19,9 +19,6 @@ public class PlayMap : ViewMap {
     public Button sellTowerBtn;
     public Text sellPrice;
 
-    // To Deprecate
-    public ProjectilePool projectilePool { get; set; }
-
     // Tile click selects tiles. Click again to unselect.
     public void onTileClick(PlayTile tile) {
         PlayTile prev = selectedTile;
@@ -59,12 +56,6 @@ public class PlayMap : ViewMap {
             selectedTile.unhighlight();
             selectedTile = null;
         }
-    }
-
-
-    public void spawnMonster(Monster monster) {
-        monster.playMap = this;
-        monster.transform.position = path[0].transform.position;
     }
 
     // To toggle display of upgrade panel when a tower is clicked
@@ -132,13 +123,7 @@ public class PlayMap : ViewMap {
         selectedTile.removeTower();
         DeselectTile();
     }
-
-    // To initalize the projectile pool
-    private void Awake()
-    {
-        projectilePool = GetComponent<ProjectilePool>();
-    }
-
+    
     // Use this for initialization
     void Start () {
         GameState = GameManager.instance.getOwnGameState();
