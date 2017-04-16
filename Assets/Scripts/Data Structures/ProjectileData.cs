@@ -13,10 +13,14 @@ public class ProjectileData {
     public int damage;
     public int stunTime;
     public int slowTime;
+    public int DOTdamage;
+    public int DOTduration;
     public float splashRadius;
 
-    // 7*4byte (int) + 1*4byte float + Coord: 2*4byte (int).
-    public const int serialize_size = 40;
+    public bool isView; // NOT SYNCHRONIZED. // DEBUG
+
+    // 9*4byte (int) + 1*4byte float + Coord: 2*4byte (int).
+    public const int serialize_size = 48;
 
     public byte[] serialize() {
         byte[] dest = new byte[serialize_size];
@@ -29,6 +33,8 @@ public class ProjectileData {
         Protocol.Serialize(damage, dest, ref index);
         Protocol.Serialize(stunTime, dest, ref index);
         Protocol.Serialize(slowTime, dest, ref index);
+        Protocol.Serialize(DOTdamage, dest, ref index);
+        Protocol.Serialize(DOTduration, dest, ref index);
         Protocol.Serialize(splashRadius, dest, ref index);
         return dest;
     }
@@ -44,6 +50,8 @@ public class ProjectileData {
         Protocol.Deserialize(out proj.damage, from, ref index);
         Protocol.Deserialize(out proj.stunTime, from, ref index);
         Protocol.Deserialize(out proj.slowTime, from, ref index);
+        Protocol.Deserialize(out proj.DOTdamage, from, ref index);
+        Protocol.Deserialize(out proj.DOTduration, from, ref index);
         Protocol.Deserialize(out proj.splashRadius, from, ref index);
         return proj;
     }

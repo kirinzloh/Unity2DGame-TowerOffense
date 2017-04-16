@@ -18,8 +18,6 @@ public class ViewMap : MonoBehaviour {
     protected List<ViewTile> path;
     protected ViewTile[,] grid;
 
-    public Text health;
-
     public List<ViewTile> getPath() {
         return path;
     }
@@ -88,7 +86,6 @@ public class ViewMap : MonoBehaviour {
     
     // Update is called once per frame
     void Update () {
-        health.text = GameState.hp.ToString();
     }
 
     public void refreshMap() {

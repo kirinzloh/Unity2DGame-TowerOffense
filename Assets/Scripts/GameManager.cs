@@ -26,7 +26,7 @@ public class GameManager : Photon.PunBehaviour {
     public int goldAmount;
     public float goldInterval; // in s
 
-    public int gameTimeLimit; // in ms. Preferably 300 000 (5 min)
+    public int gameTimeLimit; // in ms. Preferably 600 000 (10 min)
     public int startTime;
     public bool timeout;
 
@@ -61,9 +61,9 @@ public class GameManager : Photon.PunBehaviour {
         // Don't auto sync scenes. Ignore-->Makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
         PhotonNetwork.automaticallySyncScene = false;
         
-        // Reduce sendrate.
-        PhotonNetwork.sendRate = 10; // Default 20
-        PhotonNetwork.sendRateOnSerialize = 5; // Default 10
+        // Reduce sendrate. // Not reduced anymore
+        //PhotonNetwork.sendRate = 10; // Default 20
+        //PhotonNetwork.sendRateOnSerialize = 5; // Default 10
 
         PhotonNetwork.logLevel = Loglevel;
 
@@ -134,8 +134,9 @@ public class GameManager : Photon.PunBehaviour {
             proj.projData = projData;
             proj.target = target;
             proj.source = source;
-            proj.Initialize();
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
+            proj.splashR.color = TowerR.getById(projData.towerId).splashColor;
+            proj.Initialize();
             if (getOwnGameState().sendMapData && PhotonNetwork.connected) {
                 photonView.RPC("shootViewProjectile", PhotonTargets.Others, projData.serialize());
             }
@@ -231,6 +232,10 @@ public class GameManager : Photon.PunBehaviour {
         try {
             ProjectileData projData = ProjectileData.deserialize(ProjectileBytes);
             projData.startTime = getTime();
+            if (projData.hitTime < projData.startTime + 100) { // Min take 100ms to hit.
+                projData.hitTime = projData.startTime + 100;
+            }
+            projData.isView = true;
             PlayerGameState oppGameState = getOpponentGameState();
             Monster target = oppGameState.monsterRef[projData.targetSerializeId];
             Vector2 source = oppGameState.viewMapRef.getTile(projData.startCoord.row, projData.startCoord.col).transform.position;
@@ -238,8 +243,9 @@ public class GameManager : Photon.PunBehaviour {
             proj.projData = projData;
             proj.target = target;
             proj.source = source;
-            proj.Initialize();
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
+            proj.splashR.color = TowerR.getById(projData.towerId).splashColor;
+            proj.Initialize();
         } catch (KeyNotFoundException e) {
             Debug.LogWarning(e.StackTrace);
         }
@@ -254,8 +260,10 @@ public class GameManager : Photon.PunBehaviour {
     public void gameOverLose(int playerId) {
         if (playerId != LocalId) {
             getOwnGameState().winner = true;
+            getOpponentGameState().hp = 0; // Enforce hp = 0 if not yet updated
         } else {
             getOpponentGameState().winner = true;
+            getOwnGameState().hp = 0;
         }
         PhotonNetwork.LoadLevel(4);
     }
@@ -286,7 +294,11 @@ public class GameManager : Photon.PunBehaviour {
         if (SceneManager.GetActiveScene().buildIndex != 3) { return; }
         if (PhotonNetwork.connected && !PhotonNetwork.isMasterClient) { return; }
         if (getTime() >= (startTime + gameTimeLimit)) {
-            photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+            if (PhotonNetwork.connected) {
+                photonView.RPC("gameOverTimeout", PhotonTargets.AllViaServer);
+            } else {
+                gameOverTimeout();
+            }
         }
         if (goldTimer > 0) {
             goldTimer -= Time.deltaTime;

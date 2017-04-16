@@ -135,7 +135,7 @@ public class MapData
         // DEBUG
         string x = "";
         for (int i = 0; i < size; ++i) { x += mapBytes[i]; }
-        UnityEngine.Debug.Log(x);
+        //UnityEngine.Debug.Log(x);
         // DEBUG
         return mapBytes;
     }
@@ -154,7 +154,7 @@ public class MapData
         // DEBUG
         string x = "";
         for (int i = 0; i < mapBytes.Length; ++i) { x += mapBytes[i]; }
-        UnityEngine.Debug.Log(x);
+        //UnityEngine.Debug.Log(x);
         // DEBUG
     }
     #endregion

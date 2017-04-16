@@ -70,7 +70,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         int extra = 0;
         for (int i = 0; i < map.numRows; ++i) {
             for (int j = 0; j < map.numCols; ++j) {
-                if (map.getTileData(i, j).towerType/10 == 7) { // integer division truncates. 70+ is the gold towers.
+                if (map.getTileData(i, j).towerType/10 == 9) { // integer division truncates. 90+ is the gold towers.
                     extra += TowerR.getById(map.getTileData(i, j).towerType).damage;
                 }
             }
@@ -100,7 +100,6 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     public void spawnMonster(int monsterId) {
         if (photonView==null || photonView.isMine) {
             Monster monster = Instantiate(MonsterR.getById(monsterId));
-            // DEBUG TO IMPLEMENT Should maintain a pool of monsters in the game state.
             monster.gameState = this;
             monster.SetPath(viewMapRef.getPath());
             monster.serializeId = ++monsterCount;
@@ -115,7 +114,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             stream.SendNext(gold);
             stream.SendNext(monsterGoldSpent);
             stream.SendNext(sendMapData);
-            if (sendMapData) {
+            if (sendMapData && !gameOver) {
                 stream.SendNext(map.serializePlay());
                 stream.SendNext(serializeMonsters());
             }
@@ -126,7 +125,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             this.gold = (int)stream.ReceiveNext();
             this.monsterGoldSpent = (int)stream.ReceiveNext();
             this.sendMapData = (bool)stream.ReceiveNext();
-            if (sendMapData) {
+            if (sendMapData && !gameOver) {
                 map.deserializePlay((byte[])stream.ReceiveNext());
                 deserializeMonsters((byte[])stream.ReceiveNext());
                 viewMapRef.refreshMap();
@@ -145,7 +144,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         // DEBUG
         string x = "";
         for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
-        UnityEngine.Debug.Log(playerId + " monsterbytes out: " + x);
+        // UnityEngine.Debug.Log(playerId + " monsterbytes out: " + x);
         // DEBUG
         return monsterBytes; // DEBUG
     }
@@ -154,7 +153,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         // DEBUG
         string x = "";
         for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
-        UnityEngine.Debug.Log(playerId + " monsterbytes in: " + x);
+        // UnityEngine.Debug.Log(playerId + " monsterbytes in: " + x);
         // DEBUG
         int index = 0;
         int numMonsters;
@@ -175,6 +174,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             }
             if (monster == null) { // No monster or wrong (destroyed) monster
                 monster = Instantiate(MonsterR.getById(monsterId));
+                monster.transform.SetParent(viewMapRef.transform);
                 monster.gameState = this;
                 monster.SetPath(viewMapRef.getPath());
                 monster.serializeId = serializeId;
