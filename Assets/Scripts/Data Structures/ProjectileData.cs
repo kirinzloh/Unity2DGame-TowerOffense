@@ -17,6 +17,8 @@ public class ProjectileData {
     public int DOTduration;
     public float splashRadius;
 
+    public bool isView; // NOT SYNCHRONIZED. // DEBUG
+
     // 9*4byte (int) + 1*4byte float + Coord: 2*4byte (int).
     public const int serialize_size = 48;
 

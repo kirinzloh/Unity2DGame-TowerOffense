@@ -198,7 +198,6 @@ public class PlayMap : ViewMap {
     
     // Update is called once per frame
     void Update () {
-        health.text = GameState.hp.ToString();
         gold.text = "$" + GameState.gold.ToString();
     }
 }

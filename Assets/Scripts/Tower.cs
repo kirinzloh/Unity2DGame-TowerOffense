@@ -23,6 +23,7 @@ public class Tower : MonoBehaviour {
     public int DOTdamage;        // DOT total damage to apply.
     public int DOTduration;      // in ms
     public float splashRadius;
+    public Color32 splashColor;
     public Sprite projectileSprite;
 
     // Support aura tower effects are hardcoded and static.

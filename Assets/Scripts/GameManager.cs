@@ -134,8 +134,9 @@ public class GameManager : Photon.PunBehaviour {
             proj.projData = projData;
             proj.target = target;
             proj.source = source;
-            proj.Initialize();
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
+            proj.splashR.color = TowerR.getById(projData.towerId).splashColor;
+            proj.Initialize();
             if (getOwnGameState().sendMapData && PhotonNetwork.connected) {
                 photonView.RPC("shootViewProjectile", PhotonTargets.Others, projData.serialize());
             }
@@ -231,6 +232,10 @@ public class GameManager : Photon.PunBehaviour {
         try {
             ProjectileData projData = ProjectileData.deserialize(ProjectileBytes);
             projData.startTime = getTime();
+            if (projData.hitTime < projData.startTime + 100) { // Min take 100ms to hit.
+                projData.hitTime = projData.startTime + 100;
+            }
+            projData.isView = true;
             PlayerGameState oppGameState = getOpponentGameState();
             Monster target = oppGameState.monsterRef[projData.targetSerializeId];
             Vector2 source = oppGameState.viewMapRef.getTile(projData.startCoord.row, projData.startCoord.col).transform.position;
@@ -238,8 +243,9 @@ public class GameManager : Photon.PunBehaviour {
             proj.projData = projData;
             proj.target = target;
             proj.source = source;
-            proj.Initialize();
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
+            proj.splashR.color = TowerR.getById(projData.towerId).splashColor;
+            proj.Initialize();
         } catch (KeyNotFoundException e) {
             Debug.LogWarning(e.StackTrace);
         }

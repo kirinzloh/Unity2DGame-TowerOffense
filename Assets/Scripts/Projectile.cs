@@ -20,14 +20,13 @@ public class Projectile : MonoBehaviour
     {
         transform.position = source;
         interval = projData.hitTime - projData.startTime;
-        if (interval <= 0) {
-            hitTarget();
-        }
         elapsedtime = 0;
         exploding = false;
         spriteR.enabled = true;
         splashR.enabled = false;
-        splashR.color = new Color(1, 0, 0, 0);
+        if (interval <= 0) {
+            hitTarget();
+        }
     }
 
     // Update is called once per frame
@@ -35,7 +34,7 @@ public class Projectile : MonoBehaviour
         if (exploding) {
             elapsedtime += 1000 * Time.deltaTime;
             float alpha = Mathf.Lerp(0, 0.25f, elapsedtime / explodetime);
-            splashR.color = new Color(1, 0, 0, alpha);
+            splashR.color = new Color(splashR.color.r, splashR.color.g, splashR.color.b, alpha);
             if (elapsedtime >= explodetime) {
                 Release();
             }
@@ -57,6 +56,17 @@ public class Projectile : MonoBehaviour
     }
 
     private void hitTarget() {
+        if (target == null) { Release(); return; }
+
+        if (projData.isView) { // DBEUG
+            if (projData.splashRadius == 0) {
+                Release();
+            } else {
+                Explode();
+            }
+            return;
+        }
+
         if (projData.splashRadius == 0) {
             target.TakeDamage(projData.damage);
             if (projData.stunTime > 0) {
@@ -81,7 +91,7 @@ public class Projectile : MonoBehaviour
                         monster.inflictSlow(projData.slowTime);
                     }
                     if (projData.DOTdamage > 0) {
-                        target.inflictDOT(projData.DOTdamage, projData.DOTduration);
+                        monster.inflictDOT(projData.DOTdamage, projData.DOTduration);
                     }
                 }
             }
@@ -90,6 +100,7 @@ public class Projectile : MonoBehaviour
     }
 
     private void Explode() {
+        transform.position = target.transform.position;
         exploding = true;
         spriteR.enabled = false;
         splashR.enabled = true;
