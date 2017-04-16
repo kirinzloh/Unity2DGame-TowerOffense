@@ -13,10 +13,13 @@ public class GameOver : MonoBehaviour {
         PlayerGameState opponentGS = GameManager.instance.getOpponentGameState();
         if (!ownGS.winner && !opponentGS.winner) {
             results.text = "Draw!";
+            SoundManager.instance.PlayLose();
         } else if (ownGS.winner) {
             results.text = "You Win!";
+            SoundManager.instance.PlayWin();
         } else {
             results.text = "You Lose!";
+            SoundManager.instance.PlayLose();
         }
         results.text += "\n";
         if (GameManager.instance.timeout) {
