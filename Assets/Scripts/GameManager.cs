@@ -117,6 +117,7 @@ public class GameManager : Photon.PunBehaviour {
     public void sendMonster(Monster monsterPrefab) {
         getOwnGameState().gold -= monsterPrefab.price;
         getOwnGameState().monsterGoldSpent += monsterPrefab.price;
+        SoundManager.instance.PlaySendMonster();
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("spawnMonster", PhotonTargets.Others, monsterPrefab.monsterId);
         } else {
@@ -136,6 +137,9 @@ public class GameManager : Photon.PunBehaviour {
             proj.source = source;
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
             proj.splashR.color = TowerR.getById(projData.towerId).splashColor;
+            if (!getOpponentGameState().sendMapData) {
+                SoundManager.instance.PlayShoot(TowerR.getById(projData.towerId).shootingSound);
+            }
             proj.Initialize();
             if (getOwnGameState().sendMapData && PhotonNetwork.connected) {
                 photonView.RPC("shootViewProjectile", PhotonTargets.Others, projData.serialize());
@@ -245,6 +249,9 @@ public class GameManager : Photon.PunBehaviour {
             proj.source = source;
             proj.spriteR.sprite = TowerR.getById(projData.towerId).projectileSprite;
             proj.splashR.color = TowerR.getById(projData.towerId).splashColor;
+            if (oppGameState.sendMapData) {
+                SoundManager.instance.PlayShoot(TowerR.getById(projData.towerId).shootingSound);
+            }
             proj.Initialize();
         } catch (KeyNotFoundException e) {
             Debug.LogWarning(e.StackTrace);

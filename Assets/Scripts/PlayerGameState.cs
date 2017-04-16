@@ -104,6 +104,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
             monster.SetPath(viewMapRef.getPath());
             monster.serializeId = ++monsterCount;
             monsterRef[monster.serializeId] = monster;
+            SoundManager.instance.PlaySpawnMonster();
         }
     }
     #endregion

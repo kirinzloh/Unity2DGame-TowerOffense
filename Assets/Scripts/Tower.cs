@@ -26,6 +26,8 @@ public class Tower : MonoBehaviour {
     public Color32 splashColor;
     public Sprite projectileSprite;
 
+    public AudioClip shootingSound;
+
     // Support aura tower effects are hardcoded and static.
     public int damage {
         get {

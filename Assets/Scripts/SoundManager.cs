@@ -9,10 +9,14 @@ public class SoundManager : MonoBehaviour {
     public static SoundManager instance;
 
     public AudioSource musicAudio;
+    public AudioSource sfxAudio;
     public AudioClip[] sceneMusic;
     public AudioClip winMusic;
-    public AudioClip LoseMusic;
+    public AudioClip loseMusic;
     public int currentlyPlaying;
+
+    public AudioClip sendMonster;
+    public AudioClip spawnMonster;
 
     public float masterVol;
     public float musicVol;
@@ -36,7 +40,7 @@ public class SoundManager : MonoBehaviour {
             } else if (slider.name == "MusicVol Slider") {
                 slider.value = musicVol;
                 slider.onValueChanged.AddListener(setMusicVol);
-            } else if (slider.name == "MasterVol Slider") {
+            } else if (slider.name == "SoundEffectsVol Slider") {
                 slider.value = sfxVol;
                 slider.onValueChanged.AddListener(setSfxVol);
             }
@@ -66,9 +70,9 @@ public class SoundManager : MonoBehaviour {
     
     // Update is called once per frame
     void Update () {
-        musicAudio.volume = masterVol*musicVol;
     }
 
+    #region public api
     public void PlayWin() {
         currentlyPlaying = -1;
         musicAudio.clip = winMusic;
@@ -77,19 +81,37 @@ public class SoundManager : MonoBehaviour {
 
     public void PlayLose() {
         currentlyPlaying = -2;
-        musicAudio.clip = LoseMusic;
+        musicAudio.clip = loseMusic;
         musicAudio.Play();
+    }
+
+    public void PlayShoot(AudioClip clip) {
+        if (clip == null) { return; }
+        sfxAudio.PlayOneShot(clip, 0.5f);
+    }
+
+    public void PlaySendMonster() {
+        sfxAudio.PlayOneShot(sendMonster,1);
+    }
+
+    public void PlaySpawnMonster() {
+        sfxAudio.PlayOneShot(spawnMonster, 1);
     }
 
     public void setMasterVol(float vol) {
         masterVol = vol;
+        musicAudio.volume = masterVol * musicVol;
+        sfxAudio.volume = masterVol * sfxVol;
     }
 
     public void setMusicVol(float vol) {
         musicVol = vol;
+        musicAudio.volume = masterVol * musicVol;
     }
 
     public void setSfxVol(float vol) {
         sfxVol = vol;
+        sfxAudio.volume = masterVol * sfxVol;
     }
+    #endregion
 }
