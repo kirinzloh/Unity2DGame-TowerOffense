@@ -34,9 +34,9 @@ public class GameOver : MonoBehaviour {
         results.text += "Opponent Gold: " + opponentGS.gold + "\n";
         results.text += "Opponent Gold spent on monsters: " + opponentGS.monsterGoldSpent + "\n";
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    
+    // Update is called once per frame
+    void Update () {
+        
+    }
 }

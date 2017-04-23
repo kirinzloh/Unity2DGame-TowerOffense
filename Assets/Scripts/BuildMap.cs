@@ -156,7 +156,7 @@ public class BuildMap : MonoBehaviour {
         MapData map = new MapData(numRows, numCols);
         map.setPath(path);
         map.setGrid(grid);
-        // DEBUG MODE. DELETE WHEN DONE!
+        // DEBUG MODE.
         #if UNITY_EDITOR
         System.IO.FileStream x = System.IO.File.Create("map.dat");
         byte[] mapbyte = map.serializeNew();

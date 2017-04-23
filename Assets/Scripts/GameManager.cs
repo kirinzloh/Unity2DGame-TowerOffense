@@ -58,7 +58,7 @@ public class GameManager : Photon.PunBehaviour {
 
         // Don't join the lobby. There is no need to join a lobby to get the list of rooms.
         PhotonNetwork.autoJoinLobby = false;
-        // Don't auto sync scenes. Ignore-->Makes sure we can use PhotonNetwork.LoadLevel() on the master client and all clients in the same room sync their level automatically
+        // Don't auto sync scenes. We will manually synchronize to load scene when players are ready.
         PhotonNetwork.automaticallySyncScene = false;
         
         // Reduce sendrate. // Not reduced anymore
@@ -80,7 +80,7 @@ public class GameManager : Photon.PunBehaviour {
 
     public void Connect() {
         infoDisplay.text = "Connecting to photon...";
-        // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
+        // we check if we are connected or not, we join if we are, else we initiate the connection to the server.
         if (PhotonNetwork.connected) {
             // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnPhotonRandomJoinFailed() and we'll create one.
             PhotonNetwork.JoinRandomRoom();
@@ -96,10 +96,10 @@ public class GameManager : Photon.PunBehaviour {
 
     public void buildReady() {
         goldTimer = goldInterval;
-        // For testing.
         if (PhotonNetwork.connected) {
             photonView.RPC("SendMap", PhotonTargets.Others, (object)getOwnGameState().map.serializeNew(), LocalId);
         } else {
+            // DEBUG For testing.
             Debug.Log("Testing offline. Loading scene directly");
             SceneManager.LoadScene(3);
         }
@@ -109,7 +109,7 @@ public class GameManager : Photon.PunBehaviour {
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("setSendMapData", PhotonTargets.Others, sendData);
         } else {
-            // DEBUG
+            // DEBUG For testing.
             getOpponentGameState().sendMapData = sendData;
         }
     }
@@ -121,7 +121,7 @@ public class GameManager : Photon.PunBehaviour {
         if (PhotonNetwork.connected) {
             getOpponentGameState().photonView.RPC("spawnMonster", PhotonTargets.Others, monsterPrefab.monsterId);
         } else {
-            // DEBUG
+            // DEBUG For testing.
             getOwnGameState().spawnMonster(monsterPrefab.monsterId);
         }
     }

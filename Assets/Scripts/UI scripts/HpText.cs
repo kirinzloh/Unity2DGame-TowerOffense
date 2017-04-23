@@ -9,17 +9,17 @@ public class HpText : MonoBehaviour {
     public Text hpText;
     private PlayerGameState gameState;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         if (!opponent) {
             gameState = GameManager.instance.getOpponentGameState();
         } else {
             gameState = GameManager.instance.getOwnGameState();
         }
-	}
-	
-	// Update is called once per frame
-	void Update () {
+    }
+    
+    // Update is called once per frame
+    void Update () {
         hpText.text = gameState.hp.ToString();
-	}
+    }
 }

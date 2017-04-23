@@ -33,7 +33,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         if (PhotonNetwork.connected && photonView.isMine) {
             photonView.RPC("setPlayerId", PhotonTargets.Others, playerId);
         }
-        // DEBUG MODE. DELETE WHEN DONE!
+        // DEBUG MODE.
         #if UNITY_EDITOR
         if (!PhotonNetwork.connected || photonView==null) {
             byte[] mapbyte = System.IO.File.ReadAllBytes("map"+playerId+".dat");
@@ -48,7 +48,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
     void Update () {
         if (hp <= 0 && !gameOver) {
             gameOver = true;
-            if (PhotonNetwork.connected && photonView.isMine) { // DEBUG
+            if (PhotonNetwork.connected && photonView.isMine) { // DEBUG For testing.
                 GameManager.instance.photonView.RPC("gameOverLose", PhotonTargets.AllViaServer, playerId);
             }
         }
@@ -70,7 +70,7 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         int extra = 0;
         for (int i = 0; i < map.numRows; ++i) {
             for (int j = 0; j < map.numCols; ++j) {
-                if (map.getTileData(i, j).towerType/10 == 9) { // integer division truncates. 90+ is the gold towers.
+                if (map.getTileData(i, j).towerType/10 == 9) { // integer division truncates. id 90+ is the gold towers.
                     extra += TowerR.getById(map.getTileData(i, j).towerType).damage;
                 }
             }
@@ -89,9 +89,9 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
 
     [PunRPC]
     public void setSendMapData(bool sendmap) {
-        Debug.Log("in setsendmap data: " + sendmap); // DEBUG
+        //Debug.Log("in setsendmap data: " + sendmap); // DEBUG
         if (photonView == null || photonView.isMine) {
-            Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
+            //Debug.Log("Setting setsendmap data: " + sendmap); // DEBUG
             sendMapData = sendmap;
         }
     }
@@ -120,8 +120,8 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
                 stream.SendNext(serializeMonsters());
             }
         } else {
-            // Note: In NetworkingPeer.cs : NetworkingPeer.OnSerializeWrite()
-            // first 3 values are always viewID, false, null. Ignore them if using ToArray or Count.
+            // Note: From NetworkingPeer.cs : NetworkingPeer.OnSerializeWrite()
+            // first 3 values in stream are always viewID, false, null. Ignore them if using ToArray or Count.
             this.hp = (int)stream.ReceiveNext();
             this.gold = (int)stream.ReceiveNext();
             this.monsterGoldSpent = (int)stream.ReceiveNext();
@@ -143,17 +143,17 @@ public class PlayerGameState : Photon.PunBehaviour, IPunObservable {
         }
 
         // DEBUG
-        string x = "";
-        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        //string x = "";
+        //for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
         // UnityEngine.Debug.Log(playerId + " monsterbytes out: " + x);
         // DEBUG
-        return monsterBytes; // DEBUG
+        return monsterBytes;
     }
 
     void deserializeMonsters(byte[] monsterBytes) {
         // DEBUG
-        string x = "";
-        for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
+        //string x = "";
+        //for (int i = 0; i < monsterBytes.Length; ++i) { x += monsterBytes[i]; }
         // UnityEngine.Debug.Log(playerId + " monsterbytes in: " + x);
         // DEBUG
         int index = 0;

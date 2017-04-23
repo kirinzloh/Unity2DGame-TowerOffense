@@ -58,7 +58,7 @@ public class Projectile : MonoBehaviour
     private void hitTarget() {
         if (target == null) { Release(); return; }
 
-        if (projData.isView) { // DBEUG
+        if (projData.isView) {
             if (projData.splashRadius == 0) {
                 Release();
             } else {

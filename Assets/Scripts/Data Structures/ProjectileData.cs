@@ -17,11 +17,12 @@ public class ProjectileData {
     public int DOTduration;
     public float splashRadius;
 
-    public bool isView; // NOT SYNCHRONIZED. // DEBUG
-
+    public bool isView; // NOT SYNCHRONIZED. Set by GameManager
+    
     // 9*4byte (int) + 1*4byte float + Coord: 2*4byte (int).
     public const int serialize_size = 48;
 
+    #region serialisation
     public byte[] serialize() {
         byte[] dest = new byte[serialize_size];
         int index = 0;
@@ -55,4 +56,5 @@ public class ProjectileData {
         Protocol.Deserialize(out proj.splashRadius, from, ref index);
         return proj;
     }
+    #endregion
 }

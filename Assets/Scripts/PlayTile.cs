@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayTile : ViewTile {
 
-    //public TileData tileData = new TileData(); // This will be a Direct reference to TileData in PlayerGameState.
+    //public TileData tileData = new TileData(); // Inherited from ViewTile. This will be a Direct reference to TileData in PlayerGameState.
 
     #region public api
     public void highlight() {

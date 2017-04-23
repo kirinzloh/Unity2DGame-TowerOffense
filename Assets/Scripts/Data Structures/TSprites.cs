@@ -11,7 +11,7 @@ public static class TSprites {
     public static readonly Sprite DRTile = Resources.Load<Sprite>("Tiles/down-right");
     public static readonly Sprite endTile = Resources.Load<Sprite>("Tiles/end-tile");
 
-    public static Sprite decideSprite(TileData.Direction start, TileData.Direction end) { // ^&#$@ hardcoded
+    public static Sprite decideSprite(TileData.Direction start, TileData.Direction end) { // hardcoded
         Sprite sprite = null;
         if (start == TileData.Direction.UP) {
             switch (end) {

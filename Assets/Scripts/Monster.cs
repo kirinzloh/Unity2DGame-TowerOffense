@@ -23,7 +23,7 @@ public class Monster : MonoBehaviour {
     public int pathDestIndex;
 
     //effects
-    public byte effects; // Bitmask for effects. 76543210 -> 0 : stun, 1 : slow, 2-7: not implemented yet.
+    public byte effects; // Bitmask for effects. 76543210 -> 0 : stun, 1 : slow, 2 : DOT (damage over time), 3-7: not implemented yet.
     public int stunTill;
     public int slowTill;
     public int DOTstart;
